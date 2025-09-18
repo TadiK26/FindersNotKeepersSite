@@ -1,16 +1,16 @@
-﻿CREATE TABLE `Users` (
+﻿CREATE TABLE IF NOT EXISTS `Users` (
     `UserID` int  NOT NULL ,
-    `Username` string  NOT NULL ,
-    `Lastname` string  NOT NULL ,
-    `Firstnames` string  NOT NULL ,
-    `Email` string  NOT NULL ,
+    `Username` VARCHAR(255)  NOT NULL ,
+    `Lastname` VARCHAR(255)  NOT NULL ,
+    `Firstnames` VARCHAR(255)  NOT NULL ,
+    `Email` VARCHAR(255)  NOT NULL ,
     `UP_ID` int  NULL ,
-    `PasswordHash` string  NOT NULL ,
-    `Role` string  NOT NULL ,
+    `PasswordHash` VARCHAR(255)  NOT NULL ,
+    `Role` VARCHAR(255)  NOT NULL ,
     `NotificationPreference` int  NOT NULL ,
     `DateOfCreation` date  NOT NULL ,
-    `CreationMethod` string  NOT NULL ,
-    `PhoneNumber` string  NULL ,
+    `CreationMethod` VARCHAR(255)  NOT NULL ,
+    `PhoneNumber` VARCHAR(255)  NULL ,
     `LastLoginDate` date  NOT NULL ,
     `ProfileImageID` int  NOT NULL ,
     PRIMARY KEY (
@@ -21,43 +21,43 @@
     )
 );
 
-CREATE TABLE `Category` (
+CREATE TABLE IF NOT EXISTS `Category` (
     `CategoryID` int  NOT NULL ,
-    `Description` string  NOT NULL ,
+    `Description` VARCHAR(255)  NOT NULL ,
     PRIMARY KEY (
         `CategoryID`
     )
 );
 
-CREATE TABLE `Listings` (
+CREATE TABLE IF NOT EXISTS `Listings` (
     `ListingID` int  NOT NULL ,
     `UserID` int  NOT NULL ,
-    `ItemTitle` string  NOT NULL ,
+    `ItemTitle` VARCHAR(255)  NOT NULL ,
     `CategoryID` int  NOT NULL ,
-    `Description` string  NULL ,
+    `Description` VARCHAR(255)  NULL ,
     `Image1ID` int  NOT NULL ,
     `Image2ID` int  NULL ,
     `Image3ID` int  NULL ,
-    `Status` string  NOT NULL ,
+    `Status` VARCHAR(255)  NOT NULL ,
     `CreationDate` date  NOT NULL ,
     `CloseDate` date  NULL ,
     `ClaimantID` int  NULL ,
-    `LocationLost` string  NOT NULL ,
-    `ContactInfo` string  NULL ,
+    `LocationLost` VARCHAR(255)  NOT NULL ,
+    `ContactInfo` VARCHAR(255)  NULL ,
     PRIMARY KEY (
         `ListingID`
     )
 );
 
-CREATE TABLE `Action` (
+CREATE TABLE IF NOT EXISTS `Action` (
     `ActionID` int  NOT NULL ,
-    `Description` string  NOT NULL ,
+    `Description` VARCHAR(255)  NOT NULL ,
     PRIMARY KEY (
         `ActionID`
     )
 );
 
-CREATE TABLE `MessageThread` (
+CREATE TABLE IF NOT EXISTS `MessageThread` (
     `ThreadID` int  NOT NULL ,
     `Participant1` int  NOT NULL ,
     `Participant2` int  NOT NULL ,
@@ -67,48 +67,48 @@ CREATE TABLE `MessageThread` (
     )
 );
 
-CREATE TABLE `AuditLog` (
+CREATE TABLE IF NOT EXISTS `AuditLog` (
     `LogID` int  NOT NULL ,
     `UserID` int  NOT NULL ,
     `ActionID` int  NOT NULL ,
     `DateOfAudit` date  NOT NULL ,
-    `IPAddress` string  NOT NULL ,
+    `IPAddress` VARCHAR(255)  NOT NULL ,
     `UserAgent` text  NOT NULL ,
-    `SessionID` string  NOT NULL ,
+    `SessionID` VARCHAR(255)  NOT NULL ,
     PRIMARY KEY (
         `LogID`
     )
 );
 
-CREATE TABLE `ReportLog` (
+CREATE TABLE IF NOT EXISTS `ReportLog` (
     `ReportID` int  NOT NULL ,
     `RequestedID` int  NOT NULL ,
     `RequesterID` int  NOT NULL ,
     `RequestDate` date  NOT NULL ,
-    `ReportCriteria` string  NOT NULL ,
-    `Status` string  NOT NULL ,
+    `ReportCriteria` VARCHAR(255)  NOT NULL ,
+    `Status` VARCHAR(255)  NOT NULL ,
     PRIMARY KEY (
         `ReportID`
     )
 );
 
-CREATE TABLE `Image` (
+CREATE TABLE IF NOT EXISTS `Image` (
     `ImageID` int  NOT NULL ,
-    `URL` string  NOT NULL ,
+    `URL` VARCHAR(255)  NOT NULL ,
     `uploadDate` date  NOT NULL ,
-    `assocEntityType` string  NULL ,
+    `assocEntityType` VARCHAR(255)  NULL ,
     `assocEntityID` int  NULL ,
-    `imageVector` string  NULL ,
-    `OriginalFileName` string  NOT NULL ,
+    `imageVector` VARCHAR(255)  NULL ,
+    `OriginalFileName` VARCHAR(255)  NOT NULL ,
     `FileSize` int  NOT NULL ,
     PRIMARY KEY (
         `ImageID`
     )
 );
 
-CREATE TABLE `Notifications` (
+CREATE TABLE IF NOT EXISTS `Notifications` (
     `NotificationID` int  NOT NULL ,
-    `Description` string  NOT NULL ,
+    `Description` VARCHAR(255)  NOT NULL ,
     PRIMARY KEY (
         `NotificationID`
     )
