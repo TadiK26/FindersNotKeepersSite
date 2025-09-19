@@ -4,15 +4,15 @@
     `Lastname` VARCHAR(255)  NOT NULL ,
     `Firstnames` VARCHAR(255)  NOT NULL ,
     `Email` VARCHAR(255)  NOT NULL ,
-    `UP_ID` int  NULL ,
+    `UP_ID` VARCHAR(8) NULL ,
     `PasswordHash` VARCHAR(255)  NOT NULL ,
     `Role` VARCHAR(255)  NOT NULL ,
     `NotificationPreference` int  NOT NULL ,
-    `DateOfCreation` date  NOT NULL ,
+    `DateOfCreation` DATE  NOT NULL ,
     `CreationMethod` VARCHAR(255)  NOT NULL ,
     `PhoneNumber` VARCHAR(255)  NULL ,
-    `LastLoginDate` date  NOT NULL ,
-    `ProfileImageID` int  NOT NULL ,
+    `LastLoginDate` DATE  NULL ,
+    `ProfileImageID` int  NULL ,
     PRIMARY KEY (
         `UserID`
     ),
@@ -39,8 +39,8 @@ CREATE TABLE IF NOT EXISTS `Listings` (
     `Image2ID` int  NULL ,
     `Image3ID` int  NULL ,
     `Status` VARCHAR(255)  NOT NULL ,
-    `CreationDate` date  NOT NULL ,
-    `CloseDate` date  NULL ,
+    `CreationDate` DATE  NOT NULL ,
+    `CloseDate` DATE  NULL ,
     `ClaimantID` int  NULL ,
     `LocationLost` VARCHAR(255)  NOT NULL ,
     `ContactInfo` VARCHAR(255)  NULL ,
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `MessageThread` (
     `ThreadID` int  NOT NULL ,
     `Participant1` int  NOT NULL ,
     `Participant2` int  NOT NULL ,
-    `DateOfCreation` date  NOT NULL ,
+    `DateOfCreation` DATE  NOT NULL ,
     PRIMARY KEY (
         `ThreadID`
     )
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `AuditLog` (
     `LogID` int  NOT NULL ,
     `UserID` int  NOT NULL ,
     `ActionID` int  NOT NULL ,
-    `DateOfAudit` date  NOT NULL ,
+    `DateOfAudit` DATE  NOT NULL ,
     `IPAddress` VARCHAR(255)  NOT NULL ,
     `UserAgent` text  NOT NULL ,
     `SessionID` VARCHAR(255)  NOT NULL ,
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS `ReportLog` (
     `ReportID` int  NOT NULL ,
     `RequestedID` int  NOT NULL ,
     `RequesterID` int  NOT NULL ,
-    `RequestDate` date  NOT NULL ,
+    `RequestDate` DATE  NOT NULL ,
     `ReportCriteria` VARCHAR(255)  NOT NULL ,
     `Status` VARCHAR(255)  NOT NULL ,
     PRIMARY KEY (
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS `ReportLog` (
 CREATE TABLE IF NOT EXISTS `Image` (
     `ImageID` int  NOT NULL ,
     `URL` VARCHAR(255)  NOT NULL ,
-    `uploadDate` date  NOT NULL ,
+    `uploadDate` DATE  NOT NULL ,
     `assocEntityType` VARCHAR(255)  NULL ,
     `assocEntityID` int  NULL ,
     `imageVector` VARCHAR(255)  NULL ,
@@ -156,3 +156,65 @@ REFERENCES `Users` (`UserID`);
 ALTER TABLE `ReportLog` ADD CONSTRAINT `fk_ReportLog_RequesterID` FOREIGN KEY(`RequesterID`)
 REFERENCES `Users` (`UserID`);
 
+ALTER TABLE `Users` 
+MODIFY COLUMN `DateOfCreation` DATE NOT NULL DEFAULT (NOW()),
+MODIFY COLUMN `LastLoginDate` DATE NOT NULL DEFAULT (NOW());
+
+ALTER TABLE `Listings` 
+MODIFY COLUMN `CreationDate` DATE NOT NULL DEFAULT (NOW()),
+MODIFY COLUMN `CloseDate` DATE NULL DEFAULT NULL;
+
+ALTER TABLE `MessageThread` 
+MODIFY COLUMN `DateOfCreation` DATE NOT NULL DEFAULT (NOW());
+
+ALTER TABLE `AuditLog` 
+MODIFY COLUMN `DateOfAudit` DATE NOT NULL DEFAULT (NOW());
+
+ALTER TABLE `ReportLog` 
+MODIFY COLUMN `RequestDate` DATE NOT NULL DEFAULT (NOW());
+
+ALTER TABLE `Image` 
+MODIFY COLUMN `uploadDate` DATE NOT NULL DEFAULT (NOW());
+
+
+
+INSERT INTO `Action` (`ActionID`, `Description`) 
+VALUES 
+    (1, 'User Login'),
+    (2, 'User Logout'),
+    (3, 'Create Listing'),
+    (4, 'Edit Listing'),
+    (5, 'Delete Listing'),
+    (6, 'Claim Item'),
+    (7, 'Send Message'),
+    (8, 'Update Profile'),
+    (9, 'Report User'),
+    (10, 'Password Reset'),
+    (11, 'Account Creation');
+
+INSERT INTO `Category` (`CategoryID`, `Description`) 
+VALUES 
+    (1, 'Student Card'),
+    (2, 'Electronic Device'),
+    (3, 'Clothing'),
+    (4, 'Identification Document'),
+    (5, 'Car Keys'),
+    (6, 'Bag'),
+    (7, 'Schooling Equipment'),
+    (8, 'Other');
+
+INSERT INTO `Notifications` (`NotificationID`, `Description`) 
+VALUES 
+    (1, 'No Email Notifications'),
+    (2, 'All Email Notifications'),
+    (3, 'Email Notifications of New Listings only'),
+    (4, 'Email Notifications for Messages only'),
+    (5, 'Email Notifications of Claims only'),
+    (6, 'Email Notifications for Claims and Messages'),
+    (7, 'Email Notifications for Listings and Claims'),
+    (8, 'Email Notifications for Messages and Listings'); 
+
+INSERT INTO `Users` (`Username`, `Lastname`, `Firstnames`, `Email`, `UP_ID`, `PasswordHash`,
+            `Role`, `NotificationPreference`, `CreationMethod`, `PhoneNumber`, `ProfileImageID`)
+VALUES ("Admin_TADI", "Kabaira", "Tadiwanashe", "u22490125@tuks.co.za", "22490125", "asd23fjsd", "ADMIN", 1, "ADMIN", "0814361609", NULL);
+  

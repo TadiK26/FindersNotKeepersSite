@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS `Users` (
-    `UserID` int  NOT NULL ,
+    `UserID` int  NOT NULL AUTO_INCREMENT,
     `Username` VARCHAR(255)  NOT NULL ,
     `Lastname` VARCHAR(255)  NOT NULL ,
     `Firstnames` VARCHAR(255)  NOT NULL ,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `Users` (
 );
 
 CREATE TABLE IF NOT EXISTS `Category` (
-    `CategoryID` int  NOT NULL ,
+    `CategoryID` int  NOT NULL AUTO_INCREMENT,
     `Description` VARCHAR(255)  NOT NULL ,
     PRIMARY KEY (
         `CategoryID`
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `Category` (
 );
 
 CREATE TABLE IF NOT EXISTS `Listings` (
-    `ListingID` int  NOT NULL ,
+    `ListingID` int  NOT NULL AUTO_INCREMENT,
     `UserID` int  NOT NULL ,
     `ItemTitle` VARCHAR(255)  NOT NULL ,
     `CategoryID` int  NOT NULL ,
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS `Action` (
 );
 
 CREATE TABLE IF NOT EXISTS `MessageThread` (
-    `ThreadID` int  NOT NULL ,
+    `ThreadID` int  NOT NULL AUTO_INCREMENT ,
     `Participant1` int  NOT NULL ,
     `Participant2` int  NOT NULL ,
     `DateOfCreation` DATE  NOT NULL ,
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS `MessageThread` (
 );
 
 CREATE TABLE IF NOT EXISTS `AuditLog` (
-    `LogID` int  NOT NULL ,
+    `LogID` int  NOT NULL AUTO_INCREMENT,
     `UserID` int  NOT NULL ,
     `ActionID` int  NOT NULL ,
     `DateOfAudit` DATE  NOT NULL ,
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS `AuditLog` (
 );
 
 CREATE TABLE IF NOT EXISTS `ReportLog` (
-    `ReportID` int  NOT NULL ,
+    `ReportID` int  NOT NULL AUTO_INCREMENT,
     `RequestedID` int  NOT NULL ,
     `RequesterID` int  NOT NULL ,
     `RequestDate` DATE  NOT NULL ,
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS `ReportLog` (
 );
 
 CREATE TABLE IF NOT EXISTS `Image` (
-    `ImageID` int  NOT NULL ,
+    `ImageID` int  NOT NULL AUTO_INCREMENT,
     `URL` VARCHAR(255)  NOT NULL ,
     `uploadDate` DATE  NOT NULL ,
     `assocEntityType` VARCHAR(255)  NULL ,
@@ -214,7 +214,7 @@ VALUES
     (7, 'Email Notifications for Listings and Claims'),
     (8, 'Email Notifications for Messages and Listings'); 
 
-INSERT INTO `Users` (`UserID`, `Username`, `Lastname`, `Firstnames`, `Email`, `UP_ID`, `PasswordHash`,
+INSERT INTO `Users` (`Username`, `Lastname`, `Firstnames`, `Email`, `UP_ID`, `PasswordHash`,
             `Role`, `NotificationPreference`, `CreationMethod`, `PhoneNumber`, `ProfileImageID`)
-VALUES (1, "Admin_TADI", "Kabaira", "Tadiwanashe", "u22490125@tuks.co.za", "22490125", "asd23fjsd", "ADMIN", 1, "ADMIN", "0814361609", NULL);
+VALUES ("Admin_TADI", "Kabaira", "Tadiwanashe", "u22490125@tuks.co.za", "22490125", "asd23fjsd", "ADMIN", 1, "ADMIN", "0814361609", NULL);
   
