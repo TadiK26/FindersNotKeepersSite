@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS `Image` (
     `assocEntityID` int  NULL ,
     `imageVector` VARCHAR(255)  NULL ,
     `OriginalFileName` VARCHAR(255)  NOT NULL ,
-    `FileSize` int  NOT NULL ,
+    `FileSize` DOUBLE(3,2)  NOT NULL ,
     PRIMARY KEY (
         `ImageID`
     )
@@ -155,6 +155,8 @@ REFERENCES `Users` (`UserID`);
 
 ALTER TABLE `ReportLog` ADD CONSTRAINT `fk_ReportLog_RequesterID` FOREIGN KEY(`RequesterID`)
 REFERENCES `Users` (`UserID`);
+
+ALTER TABLE Users AUTO_INCREMENT = 10000;
 
 ALTER TABLE `Users` 
 MODIFY COLUMN `DateOfCreation` DATE NOT NULL DEFAULT (NOW()),
@@ -214,7 +216,14 @@ VALUES
     (7, 'Email Notifications for Listings and Claims'),
     (8, 'Email Notifications for Messages and Listings'); 
 
+INSERT INTO `Users` (UserID,`Username`, `Lastname`, `Firstnames`, `Email`, `UP_ID`, `PasswordHash`,
+            `Role`, `NotificationPreference`, `CreationMethod`, `PhoneNumber`, `ProfileImageID`)
+VALUES (1,"Admin_TADI", "Kabaira", "Tadiwanashe", "u22490125@tuks.co.za", "22490125", "asd23fjsd", "ADMIN", 1, "ADMIN", "0814361609", NULL);
+
 INSERT INTO `Users` (`Username`, `Lastname`, `Firstnames`, `Email`, `UP_ID`, `PasswordHash`,
             `Role`, `NotificationPreference`, `CreationMethod`, `PhoneNumber`, `ProfileImageID`)
-VALUES ("Admin_TADI", "Kabaira", "Tadiwanashe", "u22490125@tuks.co.za", "22490125", "asd23fjsd", "ADMIN", 1, "ADMIN", "0814361609", NULL);
-  
+VALUES ("User_TADI", "Kabaira", "Tadiwanashe", "u22490125@tuks.co.za", "22490125", "asd23fjsd", "ADMIN", 1, "USER", "0814361609", NULL);
+
+INSERT INTO `Image` (`URL`, `OriginalFileName`, `FileSize`)
+VALUES ("local", "default-icon.png", 2.7);
+
