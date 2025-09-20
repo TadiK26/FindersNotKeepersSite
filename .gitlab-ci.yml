@@ -1,0 +1,38 @@
+image: node:18
+stages:
+  - test
+  - deploy-server
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - Server/node_modules/
+
+#ONLY if files in the Server/ directory change
+unit-tests-server:
+  stage: test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes: 
+        - Server/**/*
+  script:
+    - cd Server # goes to Server directory
+    - npm install
+    - npm test
+  variables:
+    MONGODB_URI: "mongodb://localhost:27017/findersnotkeepers_test"
+    JWT_SECRET: "test-secret-for-ci"
+
+#Deploy the Server to Render
+deploy-server-to-render:
+  stage: deploy-server
+  image: ruby:latest
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main' # only run on the main branch
+      changes: # only if Server files were changed
+        - Server/**/*
+  script:
+   - cd Server
+   - gem install render
+   - render deploy
+  needs: ["unit-tests-server"] # waits for test to pass
