@@ -1,0 +1,2 @@
+This file is saved inside a subfolder.
+Each interaction can be logged here.

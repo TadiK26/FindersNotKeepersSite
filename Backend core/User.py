@@ -68,6 +68,8 @@ class User:
         cursor.close()
         conn.close()
 
+
+
         return True
     
     def MakeListing(self, ItemTitle:str, CategoryID:int, Description: str, Location: str, Contact: bool, Image1: int, Image2 = None, Image3 = None):
@@ -307,7 +309,7 @@ class User:
             threadID = None
 
             if(row is None):
-                threadID = self.CreateMessageThread()
+                threadID = self.CreateMessageThread(user_1, user_2)
             else:
                 threadID = row['ThreadID']
 

@@ -69,7 +69,7 @@ class Session:
         cursor = conn.cursor()
 
         cursor.execute("SELECT * FROM Users WHERE Username = %s", (username,))
-        conn.commit()
+        #conn.commit()
         
         
         row = cursor.fetchone()
