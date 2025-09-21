@@ -67,17 +67,28 @@ class Session:
 
         conn = self.get_connection()
         cursor = conn.cursor()
+
         cursor.execute("SELECT * FROM Users WHERE Username = %s", (username,))
+        conn.commit()
+        
         
         row = cursor.fetchone()
         if(row is None):
+            cursor.close()
+            conn.close()
             return [2, user_profile]
 
         if(not self.verify_password(password, row[6])):
-            self.logOut
+            self.logOut()
+            cursor.close()
+            conn.close()
             return [0, user_profile]
         
         user_profile = self.loadProfile(username=username)
+
+        cursor.close()
+        conn.close()
+
         return [1, user_profile]
 
     def logOut(self):
