@@ -1,0 +1,52 @@
+/**/
+#root {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 24px;
+}
+/*Edits the logo and brand(site heading) as a group*/
+.site-header {
+  position: relative;
+  height: 150px;
+  width: 100%;
+}
+
+/*Edits the logo - magnifying glass*/
+.site-logo {
+  position: absolute;
+  top: -70px;   /*y-pos*/
+  left: -130px;  /*x-pos*/
+  height: 110px;
+  width: auto;
+}
+
+/*Edits the brand name - FindersNotKeepers*/
+.site-brand {
+  margin: 0;
+  justify-self: center; 
+  text-align: center;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  font-size: clamp(2.3rem, 2.2vw + 2.7rem, 3.1rem);
+  color:black
+}
+
+/*Edits the site text - Just below brand name*/
+.site-text {
+  position: absolute;
+  top: 80px;   /*y-pos*/
+  margin: 0;
+  justify-self: center; 
+  text-align: center;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  font-style: italic;
+  font-size: 1.13rem;
+  color:black
+}
+
+.site-right {
+  justify-self: end;     /* placeholder for future nav (Login/Sign up) */
+}
+
+

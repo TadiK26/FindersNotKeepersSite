@@ -1,0 +1,87 @@
+Users
+-
+UserID int PK
+Username string UNIQUE
+Lastname string
+Firstnames string
+Email string
+UP_ID NULL int
+PasswordHash string
+Role string
+NotificationPreference int FK >- Notifications.NotificationID
+DateOfCreation date
+CreationMethod string
+PhoneNumber NULL string 
+LastLoginDate date
+ProfileImageID int FK >- Image.ImageID
+
+Category
+-
+CategoryID int PK
+Description string
+
+Listings
+-
+ListingID int PK
+UserID int FK >- Users.UserID
+ItemTitle string
+CategoryID int FK >- Category.CategoryID
+Description NULL string
+Image1ID int FK >- Image.ImageID
+Image2ID NULL int FK >- Image.ImageID
+Image3ID NULL int FK >- Image.ImageID
+Status string
+CreationDate date
+CloseDate NULL date
+ClaimantID NULL int FK >- Users.UserID
+LocationLost string
+ContactInfo NULL string
+
+Action
+-
+ActionID int PK
+Description string
+
+MessageThread
+-
+ThreadID int PK
+Participant1 int FK >- Users.UserID
+Participant2 int FK >- Users.UserID
+DateOfCreation date
+
+
+AuditLog
+-
+LogID int PK
+UserID int FK >- Users.UserID
+ActionID int FK >- Action.ActionID
+DateOfAudit date
+IPAddress string
+UserAgent text
+SessionID string
+
+ReportLog
+-
+ReportID int PK
+RequestedID int FK >- Users.UserID
+RequesterID int FK >- Users.UserID
+RequestDate date
+ReportCriteria string
+Status string
+
+Image
+-
+ImageID int PK
+URL string
+uploadDate date
+assocEntityType NULL string
+assocEntityID NULL int
+imageVector NULL string
+OriginalFileName string
+FileSize int
+
+Notifications
+-
+NotificationID int PK
+Description string
+

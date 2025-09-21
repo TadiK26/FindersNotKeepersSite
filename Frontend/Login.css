@@ -1,0 +1,118 @@
+/* Layout */
+.login-wrap{
+  min-height: 100vh;
+  display: grid;
+  place-items: start center;
+  padding: 4rem 1rem;
+}
+
+.login-card{
+  width: min(40rem, 92vw);
+}
+
+/* Heading */
+.login-header {
+  margin-left: 6rem;
+  margin-bottom: 2rem;  /* space below the group */
+}
+
+.login-logo {
+  position: absolute;  /* anchor it without shifting others */
+  top: 4.6rem;           /* distance from the top */
+  left: 22rem;          /* distance from the left */
+  width: 4.5rem;       /* size */
+  height: auto;
+}
+
+.login-title{
+  font-size: 2.125rem;   /* ~34px */
+  font-weight: 800;
+  margin: 0 0 0.5rem;
+}
+.login-sub{
+  color: #333;
+  margin: 0 0 2rem;
+}
+
+/* Form */
+.login-form{
+  display: grid;
+  gap: 1rem;
+}
+.login-label{
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+.login-input{
+  padding: 0.9rem 1rem;
+  border: 1px solid #d9d9d9;
+  border-radius: 0.6rem;
+  background: #fafafa;
+  font-size: 1rem;
+}
+.login-input:focus{
+  outline: none;
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 0.15rem rgba(26,115,232,.15);
+}
+
+.login-remember{
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #222;
+  margin-top: 0.25rem;
+}
+
+/* Primary button */
+.login-btn{
+  margin-top: 0.25rem;
+  width: 40rem;
+  padding: 0.8rem 1rem;
+  border: 0;
+  border-radius: 0.6rem;
+  background: #1a73e8;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+.login-btn:hover{ filter: brightness(0.96); }
+
+/* Social sign in */
+.login-social{
+  margin-top: 7rem;
+  display: flex;
+  gap: 2rem;           
+  justify-content: center;
+  justify-items: center; /* left-align like the mock */
+}
+.google-slot{
+  display: inline-flex; /* keeps Google's button size */
+}
+.apple-btn{
+  width: 300px;
+  border: 1px solid #d9d9d9;
+  background: #fff;
+  border-radius: 0.25rem;
+  padding: 0.45rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.apple-btn:hover{ background: #f7f7f7; }
+
+/* Footer text */
+.login-footer{
+  margin-top: 1.5rem;
+  color: #333;
+  text-align: center; 
+}
+.login-footer a{ font-weight: 700; }
+
+/* Small screens */
+@media (max-width: 640px){
+  .login-wrap{ padding-top: 3rem; }
+  .login-btn{ width: 100%; }
+}
