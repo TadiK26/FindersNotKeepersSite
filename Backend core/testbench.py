@@ -1,50 +1,112 @@
 from User import User
+from Session import Session
 from datetime import date
+import mysql.connector
 
-def UserTest_1():
-    new_user = User()
+#Tests that a user can register
+def SessionTest_1():
+    print("Session Test 1: User Registration")
+    new_session = Session("TEST_SESH","192.168.4.1")
 
-    new_user.register(Username="Midas", 
-                      Lastname="Milly", 
-                      Firstnames="Milchick",
-                      Email="AU_Midas@proton.com", 
+    new_user = new_session.register(Username="Hulk", 
+                      Lastname="Banner", 
+                      Firstnames="Bruce",
+                      Email="smash@proton.com", 
                       UP_ID="NULL", 
-                      PlainTextPassword="GoldenTouch", 
+                      PlainTextPassword="BulkyScientist", 
                       CreationMethod="Site Registration", 
                       PhoneNumber="NULL", 
                       ProfileImageID=1)
     
-    print("New User ID:", new_user.UserID)
+    if(new_user is not None):
+        print("Test Passed\nNew User ID:", new_user.UserID)
 
-def UserTest_2():
-    new_user = User()
+        conn = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="tadiwanashe",
+            database="findersnotkeepers"
+        )
+    
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM Users WHERE UserID = %s", (new_user.UserID,))
+
+        cursor.close() 
+        conn.close()
+    else:
+        print("Test Failed")
+
+    print("\n")
+
+#Tests that password encryption works
+def SessionTest_2():
+    print("Session Test 2: Password Encryption")
+
+    new_session = Session("TEST_SESH","192.168.4.1")
     password = "ComplPass!26$"
-    hashed = new_user.hash_password(password)
+    hashed = new_session.hash_password(password)
 
-    print(hashed)
+    pass_check = new_session.verify_password(password, hashed)
 
-    pass_check = new_user.verify_password(password, hashed)
-    print(pass_check)
+    if(pass_check):
+        print("Test 2.1: Passed")
+    else:
+        print("Test 2.1: Failed")
 
-    pass_fail = new_user.verify_password("NonPassword", hashed)
 
-    print(pass_fail)
+    pass_fail = new_session.verify_password("NonPassword", hashed)
 
-def UserTest_3():
-    user_1 = User()
-    user_1.loadProfile(email="Lenn123@proton.com")
+    if(not pass_fail):
+        print("Test 2.2: Passed")
+    else:
+        print("Test 2.2: Failed")
+    
+    print("\n")
 
-    user_2 = User()
-    user_2.loadProfile(userid=1)
+#Tests that user can log in and log out
+def SessionTest_3():
+    #BATMAN PASSWORD: "AuraFarmer"
+    print("Session Test 3: User Log In and Log Out")
 
-    user_3 = User()
-    user_3.loadProfile(username="Midas")
+    current_session = Session("Cur_Sesh","187.90.85.204")
+    [state, user] = current_session.logIn("Bane","AURAFARMER")
+
+    if(state == 2):
+        print("Test 3.1: Passed")
+    else:
+        print("Test 3.1: Failed")
+
+    [state, user] = current_session.logIn("Batman","AURAFARMER")
+
+    if(state == 0):
+        print("Test 3.2: Passed")
+    else:
+        print("Test 3.2: Failed")
+
+    [state, user] = current_session.logIn("Batman","AuraFarmer")
+
+    if(state == 1):
+        if(user.Username == "Batman"):
+            print("Test 3.3: Passed")
+        else:
+            print("Test 3.3: Password correct, wrong user loaded")
+    else:
+        print("Test 3.3: Failed")
+
+    print("\n")
+
+def SessionTests():
+    print("Unit Tests for Session.py: \n")
+    SessionTest_1()
+    SessionTest_2()
+    SessionTest_3()
 
 
 
 
 
 ##########Tests##########
-#UserTest_1()
-#UserTest_2()
-#UserTest_3()
+
+#SessionTests()
+
+#Add tests for log in and log out
