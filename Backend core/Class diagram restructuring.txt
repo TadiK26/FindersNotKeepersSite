@@ -2,13 +2,20 @@ Class diagram restructuring
 
 Class: Session
 	Functions:
-		Register()
-		LogIn()
-		LogOut()
+		register()
+		logIn()
+		logOut()
+		loadProfile()
+		searchByUsername()
+		searchByEmail()
+		searchByUserID()
+		hash_password()
+		verify_password()
+		
 
 
 
-Class: User
+Class: User 
 	Functions:
 		UpdateProfile()
 		MakeListing()

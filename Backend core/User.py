@@ -19,7 +19,7 @@ class User:
         self.PasswordHash = PasswordHash
         self.Role = Role
         self.NotificationPreference = NotificationPreference
-        self.DateOfCreation = date.today()
+        self.DateOfCreation = DateOfCreation
         self.CreationMethod = CreationMethod
         self.PhoneNumber = PhoneNumber
         self.LastLoginDate = LastLoginDate
@@ -35,11 +35,38 @@ class User:
             database="findersnotkeepers"
         )
     
-    
-    
     def UpdateProfile(self):
-        """Update user profile information."""
-        pass
+        """
+            Update user profile details
+            Args: 
+                self: class object
+            Return:
+                returns true if update is successful else false
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        query = """
+            UPDATE Users SET
+                Username=%s, Lastname=%s, Firstnames=%s, Email=%s, UP_ID=%s,
+                PasswordHash=%s, Role=%s, NotificationPreference=%s, DateOfCreation=%s,
+                CreationMethod=%s, PhoneNumber=%s, LastLoginDate=%s, ProfileImageID=%s
+            WHERE UserID=%s
+            """
+        values = (self.Username, self.Lastname, self.Firstnames, self.Email,
+                      self.UP_ID, self.PasswordHash, self.Role, self.NotificationPreference,
+                      self.DateOfCreation, self.CreationMethod, self.PhoneNumber,
+                      self.LastLoginDate, self.ProfileImageID, self.UserID)
+        try:
+            cursor.execute(query, values)
+        except:
+            return False
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return True
     
     def MakeListing(self):
         """Create a new item listing."""
