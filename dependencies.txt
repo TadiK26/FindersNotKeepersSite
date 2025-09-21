@@ -1,2 +1,4 @@
 import openai
 import flask
+import bcrypt
+import mysql.connector
