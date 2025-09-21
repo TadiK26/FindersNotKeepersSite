@@ -1,18 +1,6 @@
 from User import User
 from datetime import date
 
-# Create new user
-
-
-# Fetch user by ID
-#user = User.get_by_id(new_user.UserID)
-#print(user)
-
-# Update user
-#user.LastLoginDate = date.today()
-#user.save()
-
-#Test inserting a user into the database tables
 def UserTest_1():
     new_user = User()
 
@@ -28,15 +16,35 @@ def UserTest_1():
     
     print("New User ID:", new_user.UserID)
 
+def UserTest_2():
+    new_user = User()
+    password = "ComplPass!26$"
+    hashed = new_user.hash_password(password)
+
+    print(hashed)
+
+    pass_check = new_user.verify_password(password, hashed)
+    print(pass_check)
+
+    pass_fail = new_user.verify_password("NonPassword", hashed)
+
+    print(pass_fail)
+
+def UserTest_3():
+    user_1 = User()
+    user_1.loadProfile(email="Lenn123@proton.com")
+
+    user_2 = User()
+    user_2.loadProfile(userid=1)
+
+    user_3 = User()
+    user_3.loadProfile(username="Midas")
 
 
+
+
+
+##########Tests##########
 #UserTest_1()
-
-user_1 = User()
-user_1.loadProfile(email="Lenn123@proton.com")
-
-user_2 = User()
-user_2.loadProfile(userid=1)
-
-user_3 = User()
-user_3.loadProfile(username="Midas")
+#UserTest_2()
+#UserTest_3()
