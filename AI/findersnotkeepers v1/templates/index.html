@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FindersNotKeepers - AI Demo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">FindersNotKeepers</div>
+            <nav>
+                <ul>
+                    <li><a href="#" class="active">Home</a></li>
+                    <li><a href="#">Listings</a></li>
+                    <li><a href="#">How It Works</a></li>
+                    <li><a href="#" id="login-btn">Login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container main-content">
+        <!-- Listings Section -->
+        <section class="listings-section">
+            <h2>Recent Listings</h2>
+            
+            <!-- Listing Form -->
+            <div class="listing-form">
+                <h3>Report a Lost or Found Item</h3>
+                <form id="listing-form">
+                    <div class="form-group">
+                        <label for="item-type">Item Type</label>
+                        <select class="form-control" id="item-type" required>
+                            <option value="">Select Type</option>
+                            <option value="lost">Lost Item</option>
+                            <option value="found">Found Item</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="item-title">Title</label>
+                        <input type="text" class="form-control" id="item-title" placeholder="e.g., Black Laptop Bag" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="item-description">Description</label>
+                        <textarea class="form-control" id="item-description" rows="3" placeholder="Describe the item in detail..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="item-category">Category</label>
+                        <select class="form-control" id="item-category" required>
+                            <option value="">Select Category</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="documents">Documents</option>
+                            <option value="accessories">Accessories</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="item-location">Location</label>
+                            <input type="text" class="form-control" id="item-location" placeholder="Where was it lost/found?" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="item-date">Date</label>
+                        <input type="date" class="form-control" id="item-date" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Listing</button>
+                </form>
+            </div>
+            
+            <!-- Listings Grid -->
+            <div class="listing-cards" id="listings-container">
+                <!-- Listings will be dynamically added here -->
+            </div>
+        </section>
+        
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <!-- Notifications Panel -->
+            <div class="notifications-panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">Notifications</h3>
+                    <span class="badge" id="notification-count">0</span>
+                </div>
+                <div id="notifications-list">
+                    <!-- Notifications will be dynamically added here -->
+                    <p class="empty-state">No notifications yet</p>
+                </div>
+            </div>
+            
+            <!-- AI Panel -->
+            <div class="ai-panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">AI Features</h3>
+                </div>
+                <p>This demo showcases:</p>
+                <ul>
+                    <li>AI-Powered Item Matching</li>
+                    <li>Similarity Scoring</li>
+                    <li>Smart Notifications</li>
+                    <li>FAQ Chatbot</li>
+                </ul>
+                <div class="form-group">
+                    <label for="similarity-threshold">Similarity Threshold (%)</label>
+                    <input type="range" class="form-control" id="similarity-threshold" min="50" max="95" value="75">
+                    <output for="similarity-threshold" id="threshold-value">75%</output>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- FAQ Button -->
+    <div class="faq-btn" id="faq-button">
+        <i>FAQ</i>
+    </div>
+
+    <!-- Chatbot Container -->
+    <div class="chatbot-container" id="chatbot">
+        <div class="chatbot-header" id="chatbot-header">
+            <h3>FindersNotKeepers FAQ Assistant</h3>
+            <span id="minimize-chat">−</span>
+        </div>
+        <div class="chatbot-messages" id="chat-messages">
+            <div class="message bot-message">
+                Hello! I'm here to help with any questions about FindersNotKeepers. How can I assist you today?
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="user-input" placeholder="Ask a question...">
+            <button class="chatbot-btn" id="send-message">→</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-section">
+                <h3>FindersNotKeepers</h3>
+                <p>Reuniting lost items with their owners through AI-powered matching.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Report Lost Item</a></li>
+                    <li><a href="#">Report Found Item</a></li>
+                    <li><a href="#">Search</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <ul>
+                    <li><a href="#">Terms and Conditions</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="container footer-bottom">
+            <p>&copy; 2025 FindersNotKeepers. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/matching.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+</body>
+</html>
