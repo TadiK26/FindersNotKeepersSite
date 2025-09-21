@@ -2,6 +2,7 @@ import mysql.connector
 import bcrypt
 from datetime import date
 
+#Represents a user in the system
 class User:
     def __init__(self, UserID=None, Username=None, Lastname=None, Firstnames=None,
                  Email=None, UP_ID=None, PasswordHash=None, Role=None,
@@ -34,228 +35,32 @@ class User:
             database="findersnotkeepers"
         )
     
-    #Register a new user
-    def register(self,Username=None, Lastname=None, Firstnames=None,Email=None, 
-                 UP_ID=None, PlainTextPassword=None, CreationMethod=None, 
-                 PhoneNumber=None, ProfileImageID=1):
-        conn = self.get_connection()
-        cursor = conn.cursor()
-
-        PasswordHash = self.hash_password(PlainTextPassword)
-
-        query = """
-            INSERT INTO Users 
-            (Username, Lastname, Firstnames, Email, UP_ID, PasswordHash, Role, 
-             NotificationPreference, CreationMethod, PhoneNumber, ProfileImageID)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """
-        values = (Username, Lastname, Firstnames, Email,
-                      UP_ID, PasswordHash, "USER",1,
-                      CreationMethod, PhoneNumber, ProfileImageID)
-        
-        cursor.execute(query, values)
-        self.UserID = cursor.lastrowid
-
-        conn.commit()
-        cursor.close() 
-        conn.close()
-
-        self.loadProfile(userid=self.UserID)
     
-    def updateProfile(self):
-        """
-            Update user details
-            Args: 
-                self: class object
-        """
-        conn = self.get_connection()
-        cursor = conn.cursor()
-
-        query = """
-            UPDATE Users SET
-                Username=%s, Lastname=%s, Firstnames=%s, Email=%s, UP_ID=%s,
-                PasswordHash=%s, Role=%s, NotificationPreference=%s, DateOfCreation=%s,
-                CreationMethod=%s, PhoneNumber=%s, LastLoginDate=%s, ProfileImageID=%s
-            WHERE UserID=%s
-            """
-        values = (self.Username, self.Lastname, self.Firstnames, self.Email,
-                      self.UP_ID, self.PasswordHash, self.Role, self.NotificationPreference,
-                      self.DateOfCreation, self.CreationMethod, self.PhoneNumber,
-                      self.LastLoginDate, self.ProfileImageID, self.UserID)
-        cursor.execute(query, values)
-
-        conn.commit()
-        cursor.close()
-        conn.close()
     
-    def loadProfile(self,username = None, email = None, userid = None):
-        """
-            Loads the users details to their profile object
-            Args: 
-                self: Class object
-                username(str), email(str), userid(int)
-        """
-        conn = self.get_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-
-        #Search for a user based on the first non NULL result
-        row = None
-        row = self.searchByEmail(email, cursor)
-        if row is None:
-        
-            row = self.searchByUsername(username, cursor)
-            if row is None:  
-                row = self.searchByUserID(userid, cursor)
-            
-        
-
-        if row is not None:
-            self.UserID = int(row['UserID'])
-            self.Username = str(row['Username'])
-            self.Lastname = str(row['Lastname'])
-            self.Firstnames = str(row['Firstnames'])
-            self.Email = str(row['Email'])
-            self.UP_ID = str(row['UP_ID'])
-            self.PasswordHash = str(row['PasswordHash'])
-            self.Role = str(row['Role'])
-            self.NotificationPreference = int(row['NotificationPreference'])
-            self.DateOfCreation = str(row['DateOfCreation'])
-            self.CreationMethod = str(row['CreationMethod'])
-            self.PhoneNumber = str(row['PhoneNumber'])
-            self.LastLoginDate = str(row['LastLoginDate'])
-            self.ProfileImageID = str(row['ProfileImageID'])
-            
-
-        cursor.close() 
-        conn.close()
+    def UpdateProfile(self):
+        """Update user profile information."""
+        pass
     
-    def logIn(self, email: str, password: str):
-        """
-            Looks for the user in the database based on their email
-            Args:
-                self(User): The class object
-                email(str): attempted log in email, password(str): attempted log in password
-            Returns:
-                int -> Value indicating what the result of the log in attempt was
-                0 - Incorrect Password, 1 - Success, 2 - User does not exist
-        """
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM Users WHERE Email = %s", (email,))
-        
-        row = cursor.fetchone()
-        if(row is None):
-            return 2
-
-        if(not self.verify_password(password, row(['PasswordHash']))):
-            self.logOut
-            return 0
-        
-        self.loadProfile(email=email)
-        return 1
-
-    def logOut(self):
-        """
-            Removes all user related data from the object 
-            Args:
-                self: class object
-        """
-        self.UserID = None
-        self.Username = None
-        self.Lastname = None
-        self.Firstnames = None
-        self.Email = None
-        self.UP_ID = None
-        self.PasswordHash = None
-        self.Role = None
-        self.NotificationPreference = None
-        self.DateOfCreation = None
-        self.CreationMethod = None
-        self.PhoneNumber = None
-        self.LastLoginDate = None
-        self.ProfileImageID = None
-
-    def searchByUsername(self,username: str,cursor):
-        """
-        Searches for a user based on their username
-        
-        Args: 
-            self: class object
-            username(str) 
-            cursor(MySQLCursorAbstract) : Object for interfacing the MYSQL database
-        
-        Returns: The first row results as a tuple or a NONE object if no result
-        """
-
-        cursor.execute("SELECT * FROM Users WHERE Username = %s", (username,))
-        
-        return cursor.fetchone()
+    def MakeListing(self):
+        """Create a new item listing."""
+        pass
     
-    def searchByEmail(self,email: str,cursor):
-        """
-        Searches for a user based on their email
-        
-        Args: 
-            self: class object
-            email(str) :
-            cursor(MySQLCursorAbstract) : Object for interfacing the MYSQL database
-        
-        Returns: The first row results as a tuple or a NONE object if no result
-        """
-        cursor.execute("SELECT * FROM Users WHERE Email = %s", (email,))
-        
-        return cursor.fetchone()
+    def RemoveListing(self):
+        """Remove an existing listing."""
+        pass
     
-    def searchByUserID(self,userID: int, cursor):
-        """
-        Searches for a user based on their user ID
-
-        Args: 
-            self: class object
-            userID(int) 
-            cursor(MySQLCursorAbstract) : Object for interfacing the MYSQL database
-        
-        Returns: The first row results as a tuple or a NONE object if no result
-        """
-        cursor.execute("SELECT * FROM Users WHERE UserID = %s", (userID,))
-        
-        return cursor.fetchone()
-
-    def hash_password(self,password: str):
-        """
-        Hash a password with a random salt.
-        
-        Args:
-            self (User): The Class object
-            password (str): The plain text password to hash
-            
-        Returns:
-            str: The hashed password as a string
-        """
-        
-        # Convert password to bytes
-        password_bytes = password.encode('utf-8')
-        
-        # Generate a salt and hash the password
-        salt = bcrypt.gensalt()
-        hashed = bcrypt.hashpw(password_bytes, salt)
-        
-        return hashed.decode('utf-8')
-
-    def verify_password(self,password: str, hashed_password: str):
-        """
-        Verify a password against its hash.
-        
-        Args:
-            self(User): The class object
-            password (str): The plain text password to verify
-            hashed_password (str): The stored hashed password
-            
-        Returns:
-            bool: True if password matches, False otherwise
-        """
-        password_bytes = password.encode('utf-8')
-        hashed_bytes = hashed_password.encode('utf-8')
-        
-        return bcrypt.checkpw(password_bytes, hashed_bytes)
+    def UpdateListing(self):
+        """Update an existing listing."""
+        pass
+    
+    def MarkReturned(self):
+        """Mark an item as returned to its owner."""
+        pass
+    
+    def MarkClaimed(self):
+        """Mark an item as claimed by the owner."""
+        pass
+    
+    def SendMessage(self):
+        """Send a message to another user."""
+        pass

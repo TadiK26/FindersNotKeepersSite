@@ -1,0 +1,53 @@
+Class diagram restructuring
+
+Class: Session
+	Functions:
+		Register()
+		LogIn()
+		LogOut()
+
+
+
+Class: User
+	Functions:
+		UpdateProfile()
+		MakeListing()
+		RemoveListing()
+		UpdateListing()
+		MarkReturned()
+		MarkClaimed()
+		SendMessage()
+		
+
+
+
+
+Class: Admin (inherits from User)
+	Functions:
+		ReviewProof()
+		ApproveProof()
+		ApproveListing()
+		GetLogs()
+		GenerateReport()
+		
+
+
+
+Class: Notifications
+
+	Functions:
+		SendClaimNoti()
+		SendMatchNoti()
+		SendNewListingNoti()
+		SendAdminNoti()
+
+
+Class: itemListings
+
+	Functions:
+		applyFilter()
+		getResults()
+
+
+****************
+Might need new database for notifications regarding interest
