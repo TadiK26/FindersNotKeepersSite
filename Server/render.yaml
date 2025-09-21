@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: findersnotkeepers-api
+    runtime: node  
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    rootDir: Server 
+    envVars:
+      - key: NODE_ENV
+        value: production  # Non-secret vars use 'value'
+      # REMOVE MONGODB_URI & JWT_SECRET are set in Render
