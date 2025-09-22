@@ -1,4 +1,3 @@
-import openai  # Would be used for advanced features
 import re
 from datetime import datetime
 
