@@ -1,0 +1,150 @@
+/* src/Pages/Settings.css */
+.settings-wrap {
+  height: 100vh;       /* full viewport height */
+  overflow-y: auto;    /* allow vertical scrolling */
+  overflow-x: hidden;  /* prevent sideways scroll */
+  padding: 2rem 1rem;  /* optional breathing room */
+}
+
+/*==================================================*/
+/*Grouped items;logo and title*/
+/*==================================================*/
+.settings-top{
+  width: min(58rem, 92vw);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+}
+/*==================================================*/
+/*logo*/
+/*==================================================*/
+.settings-logo{
+  width: 4.25rem;
+  height: auto;
+}
+/*==================================================*/
+/*Settings title*/
+/*==================================================*/
+.settings-title{
+  text-align: center;
+  font-size: 2.25rem;
+  font-weight: 800;
+  margin: 0;
+}
+/*==================================================*/
+/*Home Button*/
+/*==================================================*/
+.settings-home{
+  font-weight: 700;
+  text-decoration: none;
+  color: #2b50ff;
+}
+/*==================================================*/
+/*Gear icon*/
+/*==================================================*/
+.gear{ font-size: 2rem; }
+/*==================================================*/
+/*Gradiant bar*/
+/*==================================================*/
+.settings-bar{
+  margin-top: -14rem;
+  width: min(58rem, 92vw);
+  height: .35rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg,#2ecc71 0%, #4a89ff 100%);
+  filter: drop-shadow(0 8px 10px rgba(0,0,0,.08));
+}
+/*==================================================*/
+/*The list of options*/
+/*==================================================*/
+.settings-list{
+  width: min(58rem, 92vw);
+  display: grid;
+  gap: 2rem;
+  margin-top: -25rem
+}
+/*==================================================*/
+/*Settings actual bar(button)*/
+/*==================================================*/
+.settings-item{
+  border: 1px solid #1a1a1a;
+  border-radius: .5rem;
+  background: #fff;
+  overflow: hidden;
+}
+/*==================================================*/
+/*Change Password,Notification Preferences,Privacy..*/
+/*==================================================*/
+.settings-item > summary{
+  cursor: pointer;
+  list-style: none;
+  padding: 1rem 1.25rem;
+  font-weight: 800;
+  color: #2aa491;
+  outline: none;
+}
+.settings-item > summary::-webkit-details-marker{ display: none; }
+.settings-item[open] > summary{
+  border-bottom: 1px solid #e9e9e9;
+}
+/*==================================================*/
+/*Form to fill in*/
+/*==================================================*/
+.settings-form,
+.settings-block{
+  padding: 1rem 1.25rem 1.25rem;
+  display: grid;
+  gap: .75rem;
+}
+.settings-form label{
+  display: grid;
+  gap: .375rem;
+  font-size: .95rem;
+}
+.settings-form input{
+  padding: .7rem .9rem;
+  border: 1px solid #d2d2d2;
+  border-radius: .5rem;
+  background: #fafafa;
+  font-size: 1rem;
+}
+.row{
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .98rem;
+}
+/*==================================================*/
+/*The buttons*/
+/*==================================================*/
+.btn-save{
+  margin-top: .25rem;
+  width: 14rem;
+  padding: .7rem 1rem;
+  border: 0;
+  border-radius: .55rem;
+  background: #1a73e8;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-save:hover{ filter: brightness(.96); }
+.btn-danger{
+  width: 10rem;
+  padding: .65rem 1rem;
+  border: 1px solid #ff5d5d;
+  color: #ff5d5d;
+  background: #fff;
+  border-radius: .55rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-danger:hover{ background: #fff4f4; }
+/*==================================================*/
+/*Adjusting for small screens*/
+/*==================================================*/
+@media (max-width: 640px){
+  .settings-title{ font-size: 1.9rem; }
+  .settings-logo{ width: 3.25rem; }
+}

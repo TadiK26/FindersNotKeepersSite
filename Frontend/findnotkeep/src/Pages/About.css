@@ -1,0 +1,62 @@
+/**/
+#root {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 24px;
+}
+/*==============================================================*/
+/*LOGO AND TITLE GROUPED*/
+/*==============================================================*/
+.about-header {
+  max-width: 40rem;
+  margin: 2.25rem auto 0.5rem;
+  margin-top: 1rem;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.125rem;
+  position: relative;
+}
+/*==============================================================*/
+/*LOGO*/
+/*==============================================================*/
+.about-logo {
+  width: 8rem;
+  height: 8rem;
+  object-fit: contain;
+  margin-top: 3rem
+}
+/*==============================================================*/
+/*FindersNotKeepers*/
+/*==============================================================*/
+.about-brand {
+  font-weight: 800;
+  font-size: 3.5rem;
+  margin-top: 5rem;  
+  text-align: center;
+  line-height: 1;
+  color: black;
+}
+/**==============================================================*/
+/*ABOUT TEXT*/
+/*==============================================================*/
+.about-text {
+  position: absolute;
+  margin-top: 2rem;
+  justify-self: center; 
+  text-align: center;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  font-style: italic;
+  font-size: 1.13rem;
+  color:black;
+  max-width: 80rem;
+}
+/*==============================================================*/
+/*FindersNotKeepers*/
+/*==============================================================*/
+.backbutton {
+  position: absolute;
+  top: 1rem;   /*y-pos*/
+  right: 3rem;
+}
