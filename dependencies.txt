@@ -17,12 +17,14 @@ npm install
 //for react
 npm i react-router-dom
 
-//Install on VS code
+//Install these on vs code
 pip install flask
 pip install flask_sqlalchemy
 pip install flask-jwt-extended
 pip install itsdangerous
 pip install werkzeug
 pip install pytest
+
+
 
 
