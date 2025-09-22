@@ -26,5 +26,17 @@ pip install werkzeug
 pip install pytest
 
 
+jest
+supertest
+nodemon
+@types/jest
+express
+mongoose 
+bcryptjs
+jsonwebtoken
+cors
+dotenv
+body-parser
+
 
 
