@@ -1,2 +1,30 @@
 import openai
 import flask
+import bcrypt
+import mysql.connector
+
+Install node.js
+//Check version in terminal:
+node -v
+npm -v
+
+//Install react and vite in terminal:
+npm create vite@latest findnotkeep -- --template react
+cd findnotkeep
+
+npm install
+
+//for react
+npm i react-router-dom
+
+//Install these on vs code
+pip install flask
+pip install flask_sqlalchemy
+pip install flask-jwt-extended
+pip install itsdangerous
+pip install werkzeug
+pip install pytest
+
+
+
+
