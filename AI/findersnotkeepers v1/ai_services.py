@@ -5,7 +5,21 @@ from datetime import datetime
 # Replace your calculate_similarity function in ai_services.py
 def calculate_similarity(listing1, listing2):
     """
-    Calculate similarity between two listings with enhanced matching
+    Calculate similarity between two listings using a multi-factor approach.
+    
+    The algorithm considers:
+    - Category match (30% weight)
+    - Description similarity based on word overlap (40% weight)
+    - Location similarity using keyword matching (15% weight)
+    - Title similarity based on word overlap (15% weight)
+    - Brand/model recognition bonus (20% bonus if both reference same brand)
+    
+    Args:
+        listing1 (dict): First listing with keys: type, category, title, description, location
+        listing2 (dict): Second listing with same structure as listing1
+        
+    Returns:
+        float: Similarity score between 0 and 1, where 1 is identical
     """
     print(f"🔍 Comparing: '{listing1['title']}' vs '{listing2['title']}'")
     print(f"   Type: {listing1['type']} vs {listing2['type']}")
@@ -81,7 +95,16 @@ def calculate_similarity(listing1, listing2):
 
 
 def preprocess_text(text):
-    """Preprocess text for better matching"""
+    """
+    Preprocess text by converting to lowercase, removing punctuation, 
+    and filtering out short words to improve matching accuracy.
+    
+    Args:
+        text (str): Input text to preprocess
+        
+    Returns:
+        list: List of processed words with length > 2 characters
+    """
     text = text.lower()
     # Remove punctuation
     text = re.sub(r'[^\w\s]', '', text)
@@ -92,7 +115,17 @@ def preprocess_text(text):
 
 
 def calculate_location_similarity(loc1, loc2):
-    """Calculate location similarity with keyword matching"""
+    """
+    Calculate similarity between two locations using keyword matching
+    and common word analysis.
+    
+    Args:
+        loc1 (list): Preprocessed words from first location
+        loc2 (list): Preprocessed words from second location
+        
+    Returns:
+        float: Location similarity score between 0 and 1
+    """
     location_keywords = ['library', 'center', 'building', 'cafeteria', 'student', 'room']
 
     # Check if any keywords match
@@ -111,9 +144,19 @@ def calculate_location_similarity(loc1, loc2):
     return min(similarity, 1.0)
 
 
-# Add to ai_services.py
+# Add to ai_services.py to fix apple and iphone issue
 def enhance_with_brand_recognition(listing1, listing2):
-    """Check if listings refer to the same brand/model"""
+    """
+    Detect if both listings reference the same brand or product type
+    to apply a similarity bonus.
+    
+    Args:
+        listing1 (dict): First listing with title and description
+        listing2 (dict): Second listing with title and description
+        
+    Returns:
+        bool: True if both listings reference the same brand, False otherwise
+    """
     # Common product brands and models
     product_patterns = {
         'iphone': ['apple', 'iphone'],
