@@ -10,14 +10,14 @@ from functools import wraps
 from itsdangerous import URLSafeTimedSerializer
 
 
-#Create the app
+#Create the app 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'super-secret-key' 
 app.config['SECRET_KEY'] = app.config['JWT_SECRET_KEY']  
 
-#Time it takes for tokens to expire
+#Time it takes for tokens to expire, access 
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=5)  
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
 
