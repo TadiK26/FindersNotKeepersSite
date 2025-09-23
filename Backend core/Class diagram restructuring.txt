@@ -2,6 +2,9 @@ Class diagram restructuring
 
 Class: Session
 	Functions:
+
+		__init__()
+		getConnection()
 		register()
 		logIn()
 		logOut()
@@ -17,6 +20,9 @@ Class: Session
 
 Class: User 
 	Functions:
+
+		__init__()
+		getConnection()
 		UpdateProfile()
 		MakeListing()
 		RemoveListing()
@@ -31,6 +37,8 @@ Class: User
 
 Class: Admin (inherits from User)
 	Functions:
+
+		__init__()
 		ReviewProof()
 		ApproveProof()
 		ApproveListing()
@@ -43,20 +51,39 @@ Class: Admin (inherits from User)
 Class: Notifications
 
 	Functions:
+
+		__init__()
+		getConnection()
 		SendClaimNoti()
 		SendMatchNoti()
 		SendNewListingNoti()
-		SendAdminNoti()
+		SendNotiFromAdmin()
 
 
 Class: itemListings
 
 	Functions:
+		__init__()
+		getConnection()
 		applyFilter()
 		getResults()
+		sortResults()
 
+Class: AuditLog
+	
+	Functions:
+		__init__()
+		getConnection()
+		
+Class: Report 
+	Function:
+		__init__()
+		getConnection()
+		generateReport()
 
 ****************
 Might need new database for notifications regarding item/location/interest/category
 Listings database needs new column for extra comments by user or admin
-Need new database for Status of listing
+Need new database for Status of listing (Use enumeration)
+
+- Generates a report for either all activity relating to a user/admin, item, category

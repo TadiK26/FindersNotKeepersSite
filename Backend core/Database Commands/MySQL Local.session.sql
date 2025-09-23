@@ -4,20 +4,26 @@ CREATE TABLE IF NOT EXISTS `Users` (
     `Lastname` VARCHAR(255)  NOT NULL ,
     `Firstnames` VARCHAR(255)  NOT NULL ,
     `Email` VARCHAR(255)  NOT NULL ,
-    `UP_ID` VARCHAR(8) NULL ,
+    `UP_ID` VARCHAR(9)  NULL , -- Optional university Of Pretoria ID (8 character limit)
     `PasswordHash` VARCHAR(255)  NOT NULL ,
     `Role` VARCHAR(255)  NOT NULL ,
     `NotificationPreference` int  NOT NULL ,
     `DateOfCreation` DATE  NOT NULL ,
     `CreationMethod` VARCHAR(255)  NOT NULL ,
     `PhoneNumber` VARCHAR(255)  NULL ,
-    `LastLoginDate` DATE  NULL ,
-    `ProfileImageID` int  NULL ,
+    `LastLoginDate` DATE  NULL ,  
+    `ProfileImageID` int  NOT NULL , -- Optional profile image
     PRIMARY KEY (
         `UserID`
     ),
     CONSTRAINT `uc_Users_Username` UNIQUE (
         `Username`
+    ),
+    CONSTRAINT `uc_Users_Email` UNIQUE (
+        `Email`
+    ),
+    CONSTRAINT `uc_Users_PhoneNumber` UNIQUE (
+        `PhoneNumber`
     )
 );
 
@@ -33,17 +39,17 @@ CREATE TABLE IF NOT EXISTS `Listings` (
     `ListingID` int  NOT NULL AUTO_INCREMENT,
     `UserID` int  NOT NULL ,
     `ItemTitle` VARCHAR(255)  NOT NULL ,
-    `CategoryID` int  NOT NULL ,
-    `Description` VARCHAR(255)  NULL ,
-    `Image1ID` int  NOT NULL ,
-    `Image2ID` int  NULL ,
-    `Image3ID` int  NULL ,
+    `CategoryID` int  NOT NULL ,  
+    `Description` VARCHAR(255)  NULL , -- Optional detailed description
+    `Image1ID` int  NULL , -- Required primary image
+    `Image2ID` int  NULL , -- Optional second image
+    `Image3ID` int  NULL , -- Optional third image
     `Status` VARCHAR(255)  NOT NULL ,
     `CreationDate` DATE  NOT NULL ,
-    `CloseDate` DATE  NULL ,
-    `ClaimantID` int  NULL ,
-    `LocationLost` VARCHAR(255)  NOT NULL ,
-    `ContactInfo` VARCHAR(255)  NULL ,
+    `CloseDate` DATE  NULL ,  
+    `ClaimantID` int  NULL , -- User who claimed the item
+    `LocationLost` VARCHAR(255)  NOT NULL ,  -- Where item was lost/found
+    `ContactInfo` VARCHAR(255)  NULL , -- Additional contact information
     PRIMARY KEY (
         `ListingID`
     )
@@ -58,7 +64,7 @@ CREATE TABLE IF NOT EXISTS `Action` (
 );
 
 CREATE TABLE IF NOT EXISTS `MessageThread` (
-    `ThreadID` int  NOT NULL AUTO_INCREMENT ,
+    `ThreadID` VARCHAR(40)  NOT NULL ,
     `Participant1` int  NOT NULL ,
     `Participant2` int  NOT NULL ,
     `DateOfCreation` DATE  NOT NULL ,
@@ -73,7 +79,7 @@ CREATE TABLE IF NOT EXISTS `AuditLog` (
     `ActionID` int  NOT NULL ,
     `DateOfAudit` DATE  NOT NULL ,
     `IPAddress` VARCHAR(255)  NOT NULL ,
-    `UserAgent` text  NOT NULL ,
+    `UserAgent` TEXT  NOT NULL ,
     `SessionID` VARCHAR(255)  NOT NULL ,
     PRIMARY KEY (
         `LogID`
@@ -82,8 +88,8 @@ CREATE TABLE IF NOT EXISTS `AuditLog` (
 
 CREATE TABLE IF NOT EXISTS `ReportLog` (
     `ReportID` int  NOT NULL AUTO_INCREMENT,
-    `RequestedID` int  NOT NULL ,
-    `RequesterID` int  NOT NULL ,
+    `RequestedID` int  NOT NULL , -- User whose report is being requested
+    `RequesterID` int  NOT NULL , -- User/Admin making the report
     `RequestDate` DATE  NOT NULL ,
     `ReportCriteria` VARCHAR(255)  NOT NULL ,
     `Status` VARCHAR(255)  NOT NULL ,
@@ -96,11 +102,11 @@ CREATE TABLE IF NOT EXISTS `Image` (
     `ImageID` int  NOT NULL AUTO_INCREMENT,
     `URL` VARCHAR(255)  NOT NULL ,
     `uploadDate` DATE  NOT NULL ,
-    `assocEntityType` VARCHAR(255)  NULL ,
-    `assocEntityID` int  NULL ,
-    `imageVector` VARCHAR(255)  NULL ,
+    `assocEntityType` VARCHAR(255)  NULL , -- Type of entity image belongs to
+    `assocEntityID` int  NULL , -- ID of associated entity
+    `imageVector` VARCHAR(255)  NULL , -- AI-generated image vector for similarity matching
     `OriginalFileName` VARCHAR(255)  NOT NULL ,
-    `FileSize` DOUBLE(3,2)  NOT NULL ,
+    `FileSize` int  NOT NULL ,
     PRIMARY KEY (
         `ImageID`
     )
@@ -113,6 +119,19 @@ CREATE TABLE IF NOT EXISTS `Notifications` (
         `NotificationID`
     )
 );
+
+CREATE TABLE IF NOT EXISTS `WarningSetup` (
+    `WarningID` int  NOT NULL AUTO_INCREMENT ,
+    `UserID` int  NOT NULL ,
+    `ItemName` VARCHAR(255)  NULL ,
+    `ItemLocation` VARCHAR(255)  NULL ,
+    `ItemCategory` VARCHAR(255)  NULL ,
+    PRIMARY KEY (
+        `WarningID`
+    )
+);
+
+ALTER TABLE Users AUTO_INCREMENT = 10000;
 
 ALTER TABLE `Users` ADD CONSTRAINT `fk_Users_NotificationPreference` FOREIGN KEY(`NotificationPreference`)
 REFERENCES `Notifications` (`NotificationID`);
@@ -150,17 +169,15 @@ REFERENCES `Users` (`UserID`);
 ALTER TABLE `AuditLog` ADD CONSTRAINT `fk_AuditLog_ActionID` FOREIGN KEY(`ActionID`)
 REFERENCES `Action` (`ActionID`);
 
-ALTER TABLE `ReportLog` ADD CONSTRAINT `fk_ReportLog_RequestedID` FOREIGN KEY(`RequestedID`)
+ALTER TABLE  `ReportLog` ADD CONSTRAINT `fk_ReportLog_RequestedID` FOREIGN KEY(`RequestedID`)
 REFERENCES `Users` (`UserID`);
 
 ALTER TABLE `ReportLog` ADD CONSTRAINT `fk_ReportLog_RequesterID` FOREIGN KEY(`RequesterID`)
 REFERENCES `Users` (`UserID`);
 
-ALTER TABLE Users AUTO_INCREMENT = 10000;
-
-ALTER TABLE `Users` 
+ALTER TABLE  `Users` 
 MODIFY COLUMN `DateOfCreation` DATE NOT NULL DEFAULT (NOW()),
-MODIFY COLUMN `LastLoginDate` DATE NOT NULL DEFAULT (NOW());
+MODIFY COLUMN `LastLoginDate` DATE NULL DEFAULT NULL;
 
 ALTER TABLE `Listings` 
 MODIFY COLUMN `CreationDate` DATE NOT NULL DEFAULT (NOW()),
@@ -178,6 +195,8 @@ MODIFY COLUMN `RequestDate` DATE NOT NULL DEFAULT (NOW());
 ALTER TABLE `Image` 
 MODIFY COLUMN `uploadDate` DATE NOT NULL DEFAULT (NOW());
 
+ALTER TABLE `Image` 
+MODIFY COLUMN `uploadDate` DATE NOT NULL DEFAULT (NOW());
 
 
 INSERT INTO `Action` (`ActionID`, `Description`) 
@@ -216,14 +235,5 @@ VALUES
     (7, 'Email Notifications for Listings and Claims'),
     (8, 'Email Notifications for Messages and Listings'); 
 
-INSERT INTO `Users` (UserID,`Username`, `Lastname`, `Firstnames`, `Email`, `UP_ID`, `PasswordHash`,
-            `Role`, `NotificationPreference`, `CreationMethod`, `PhoneNumber`, `ProfileImageID`)
-VALUES (1,"Admin_TADI", "Kabaira", "Tadiwanashe", "u22490125@tuks.co.za", "22490125", "asd23fjsd", "ADMIN", 1, "ADMIN", "0814361609", NULL);
-
-INSERT INTO `Users` (`Username`, `Lastname`, `Firstnames`, `Email`, `UP_ID`, `PasswordHash`,
-            `Role`, `NotificationPreference`, `CreationMethod`, `PhoneNumber`, `ProfileImageID`)
-VALUES ("User_TADI", "Kabaira", "Tadiwanashe", "u22490125@tuks.co.za", "22490125", "asd23fjsd", "ADMIN", 1, "USER", "0814361609", NULL);
-
 INSERT INTO `Image` (`URL`, `OriginalFileName`, `FileSize`)
 VALUES ("local", "default-icon.png", 2.7);
-

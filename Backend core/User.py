@@ -311,7 +311,7 @@ class User:
             if(row is None):
                 threadID = self.CreateMessageThread(user_1, user_2)
             else:
-                threadID = row['ThreadID']
+                threadID = row[0]
 
             subfolder = "MessageThreads"
             filename = str(threadID) + "_messages.txt"

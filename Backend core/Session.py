@@ -32,6 +32,7 @@ class Session:
         conn = self.get_connection()
         cursor = conn.cursor()
 
+        #Hash the plain text password with a random salt
         PasswordHash = self.hash_password(PlainTextPassword)
 
         query = """
@@ -71,7 +72,7 @@ class Session:
         cursor.execute("SELECT * FROM Users WHERE Username = %s", (username,))
         #conn.commit()
         
-        
+        #If user exists load their profile else delete all fetched results and close the connection
         row = cursor.fetchone()
         if(row is None):
             cursor.close()
@@ -97,6 +98,8 @@ class Session:
             Args:
                 self: class object
         """
+        
+        #Clear the profile
         self.UserID = None
         self.Username = None
         self.Lastname = None
