@@ -47,20 +47,22 @@ def SessionTest_2():
     password = "ComplPass!26$"
     hashed = new_session.hash_password(password)
 
+    print(hashed)
+
     pass_check = new_session.verify_password(password, hashed)
 
     if(pass_check):
-        print("Test 2.1: Passed")
+        print("Test 2.1 - Encrypting and Accept New Password: Passed")
     else:
-        print("Test 2.1: Failed")
+        print("Test 2.1 - Encrypting and Accept New Password: Failed")
 
 
     pass_fail = new_session.verify_password("NonPassword", hashed)
 
     if(not pass_fail):
-        print("Test 2.2: Passed")
+        print("Test 2.2 - Reject Wrong Password: Passed")
     else:
-        print("Test 2.2: Failed")
+        print("Test 2.2 - Reject Wrong Password: Failed")
     
     print("\n")
 
@@ -73,22 +75,22 @@ def SessionTest_3():
     [state, user] = current_session.logIn("Bane","AURAFARMER")
 
     if(state == 2):
-        print("Test 3.1: Passed")
+        print("Test 3.1 - Deny User that doesn't exist: Passed")
     else:
-        print("Test 3.1: Failed")
+        print("Test 3.1 - Deny User that doesn't exist: Failed")
 
     [state, user] = current_session.logIn("Batman","AURAFARMER")
 
     if(state == 0):
-        print("Test 3.2: Passed")
+        print("Test 3.2 - Reject Wrong Password: Passed")
     else:
-        print("Test 3.2: Failed")
+        print("Test 3.2 - Reject Wrong Password: Failed")
 
     [state, user] = current_session.logIn("Batman","AuraFarmer")
 
     if(state == 1):
         if(user.Username == "Batman"):
-            print("Test 3.3: Passed")
+            print("Test 3.3 - Accept Correct Password: Passed")
         else:
             print("Test 3.3: Password correct, wrong user loaded")
     else:
@@ -97,10 +99,10 @@ def SessionTest_3():
     print("\n")
 
 def SessionTests():
-    print("Unit Tests for Session.py: \n")
-    SessionTest_1()
+    print("Unit Tests for Session.py: \n------------------------")
+    #SessionTest_1()
     SessionTest_2()
-    SessionTest_3()
+    #SessionTest_3()
 
 #User can update their profile
 def UserTest_1():
@@ -120,15 +122,17 @@ def UserTest_1():
                 user = current_session.loadProfile(userid=user.UserID)
 
                 if(user.Email == newEmail):
-                    print("Test 1: Passed")
+                    print("Test 1 - Email Change: Passed")
                 else:
-                    print("Test 1: Failed - No Value Change")
+                    print("Test 1 - Email Change: Failed - No Value Change")
 
             else:
                 print("Test 1: Failed - Update Error")
 
     else:
         print("Test 1: Failed - Couldn't log in")
+
+    print("\n")
 
 def UserTest_2():
     print("User Test 2: Creating a new listing")
@@ -165,6 +169,8 @@ def UserTest_2():
     else:
         print("Test 2: Failed - Couldn't log in")
 
+    print("\n")
+
 def UserTest_3():
     print("User Test 3: Contact a user")
 
@@ -174,31 +180,30 @@ def UserTest_3():
     res = user.ContactUser(10008)
 
     if(res is None):
-        print("User Test 3.1: Passed")
+        print("User Test 3.1 - Contact User that doesn't exist: Passed")
     else:
-        print("User Test 3.1: Failed")
+        print("User Test 3.1 - Contact User that doesn't exist : Failed")
 
     res,id = user.ContactUser(10009)
 
     if(id > 0):
-        print("User Test 3.2: Passed")
+        print("User Test 3.2 - Contact User that does exist: Passed")
     else:
-        print("User Test 3.2: Failed")
+        print("User Test 3.2 - Contact User that does exist: Failed")
+
+    print("\n")
 
 
 
 def UserTests():
-    print("Unit Tests for User.py: \n")
-    #UserTest_1()
-    #UserTest_2()
+    print("Unit Tests for User.py: \n-----------------------------------")
+    UserTest_1()
+    UserTest_2()
     UserTest_3()
-
 
 
 
 ##########Tests##########
 
-#SessionTests()
-UserTests()
-
-#Add tests for log in and log out
+SessionTests()
+#UserTests()

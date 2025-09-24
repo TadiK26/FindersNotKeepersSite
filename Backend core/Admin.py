@@ -16,14 +16,43 @@ class Admin(User):
     
     def ReviewProof(self):
         """Review proof of ownership for an item."""
+        
         pass
     
-    def ApproveProof(self):
+    def ApproveProof(self,listingID):
         """Approve proof of ownership for an item."""
+
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        query = """
+            UPDATE Listings SET
+                Status= "Approved"
+            WHERE ListingID=%s
+            """
+
+        values = (listingID)
+        cursor.execute(query, values)
+        conn.commit()
+        
         pass
     
-    def ApproveListing(self):
+    def ApproveListing(self, listingID):
         """Approve a new item listing."""
+
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        query = """
+            UPDATE Listings SET
+                Status= "Approved"
+            WHERE ListingID=%s
+            """
+
+        values = (listingID)
+        cursor.execute(query, values)
+        conn.commit()
+
         pass
     
     def GetLogs(self):

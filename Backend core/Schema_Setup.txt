@@ -1,87 +1,95 @@
+# Lost & Found Management System Database Schema
+
 Users
 -
 UserID int PK
-Username string UNIQUE
-Lastname string
-Firstnames string
-Email string
-UP_ID NULL int
-PasswordHash string
-Role string
+Username VARCHAR(255) UNIQUE
+Lastname VARCHAR(255)
+Firstnames VARCHAR(255)
+Email VARCHAR(255) UNIQUE
+UP_ID NULL VARCHAR(8) # Optional university Of Pretoria ID (8 character limit)
+PasswordHash VARCHAR(255)
+Role VARCHAR(255)
 NotificationPreference int FK >- Notifications.NotificationID
-DateOfCreation date
-CreationMethod string
-PhoneNumber NULL string 
-LastLoginDate date
-ProfileImageID int FK >- Image.ImageID
+DateOfCreation DATE # DEFAULT NOW()
+CreationMethod VARCHAR(255)
+PhoneNumber NULL VARCHAR(255) UNIQUE #Optional phone number
+LastLoginDate NULL DATE # DEFAULT NOW()
+ProfileImageID int FK >- Image.ImageID # NULL - Optional profile image
 
 Category
 -
 CategoryID int PK
-Description string
+Description VARCHAR(255)
 
 Listings
 -
 ListingID int PK
 UserID int FK >- Users.UserID
-ItemTitle string
+ItemTitle VARCHAR(255)
 CategoryID int FK >- Category.CategoryID
-Description NULL string
-Image1ID int FK >- Image.ImageID
-Image2ID NULL int FK >- Image.ImageID
-Image3ID NULL int FK >- Image.ImageID
-Status string
-CreationDate date
-CloseDate NULL date
-ClaimantID NULL int FK >- Users.UserID
-LocationLost string
-ContactInfo NULL string
+Description NULL VARCHAR(255) # Optional detailed description
+Image1ID NULL int FK >- Image.ImageID # Required primary image
+Image2ID NULL int FK >- Image.ImageID # Optional second image
+Image3ID NULL int FK >- Image.ImageID #Optional third image
+Status VARCHAR(255)
+CreationDate DATE # DEFAULT NOW()
+CloseDate NULL DATE 
+ClaimantID NULL int FK >- Users.UserID # User who claimed the item
+LocationLost VARCHAR(255) # Where item was lost/found
+ContactInfo NULL VARCHAR(255) # Additional contact information
 
 Action
 -
 ActionID int PK
-Description string
+Description VARCHAR(255)
 
 MessageThread
 -
-ThreadID int PK
+ThreadID VARCHAR(40) PK
 Participant1 int FK >- Users.UserID
 Participant2 int FK >- Users.UserID
-DateOfCreation date
-
+DateOfCreation DATE # DEFAULT NOW()
 
 AuditLog
 -
 LogID int PK
 UserID int FK >- Users.UserID
 ActionID int FK >- Action.ActionID
-DateOfAudit date
-IPAddress string
-UserAgent text
-SessionID string
+DateOfAudit DATE # DEFAULT NOW()
+IPAddress VARCHAR(255)
+UserAgent TEXT
+SessionID VARCHAR(255)
 
 ReportLog
 -
 ReportID int PK
-RequestedID int FK >- Users.UserID
-RequesterID int FK >- Users.UserID
-RequestDate date
-ReportCriteria string
-Status string
+RequestedID int FK >- Users.UserID # User whose report is being requested
+RequesterID int FK >- Users.UserID # User/Admin making the report
+RequestDate DATE # DEFAULT NOW()
+ReportCriteria VARCHAR(255)
+Status VARCHAR(255)
 
 Image
 -
 ImageID int PK
-URL string
-uploadDate date
-assocEntityType NULL string
-assocEntityID NULL int
-imageVector NULL string
-OriginalFileName string
+URL VARCHAR(255)
+uploadDate DATE # DEFAULT NOW()
+assocEntityType NULL VARCHAR(255) #  Type of entity image belongs to
+assocEntityID NULL int # ID of associated entity
+imageVector NULL VARCHAR(255) # AI-generated image vector for similarity matching
+OriginalFileName VARCHAR(255)
 FileSize int
 
 Notifications
 -
 NotificationID int PK
-Description string
+Description VARCHAR(255)
 
+WarningSetup
+-
+WarningID int PK
+UserID int
+ItemName NULL VARCHAR(255)
+ItemLocation NULL VARCHAR(255)
+ItemCategory NULL VARCHAR(255)
