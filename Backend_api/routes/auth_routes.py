@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import (get_jwt,verify_jwt_in_request, create_refresh_token,
                                 jwt_required, get_jwt_identity, create_access_token)
 from itsdangerous import URLSafeTimedSerializer
+from log_utils import log_audit
 
 
 auth_bp=Blueprint('auth',__name__,url_prefix='/auth')#Blueprint for athenitcation
@@ -91,6 +92,11 @@ def login():
     #Generate  hashed access token and refresh token
     # access_token = create_access_token(identity=str(user.user_id), additional_claims={"role": user.role})
     # refresh_token = create_refresh_token(identity=str(user.user_id))
+    log_audit(
+        user_id=user.user_id,
+        action="LOGIN",
+        details=f"IP: {request.remote_addr}, UA: {request.headers.get('User-Agent')}, Session: {request.cookies.get('session') or 'no-session'}"
+    )
 
     access_token=create_access_token(identity=str(user.user_id),additional_claims={"role":user.role})
     refresh_token=create_refresh_token(identity=str(user.user_id))

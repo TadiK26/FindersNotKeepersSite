@@ -14,6 +14,7 @@ def create_app():
     app.config['SECRET_KEY']=os.environ.get("SECRET_KEY",app.config['JWT_SECRET_KEY'])
     app.config["JWT_ACCESS_TOKEN_EXPIRES"]=timedelta(minutes=int(os.environ.get("JWT_ACCESS_MINUTES",5)))
     app.config["JWT_REFRESH_TOKEN_EXPIRES"]=timedelta(days=int(os.environ.get("JWT_REFRESH_DAYS",7)))
+    app.config.from_object('config') #For databases
 
 
     #Initialize the database

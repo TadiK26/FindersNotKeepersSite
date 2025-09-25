@@ -1,15 +1,15 @@
 import requests
 
-BASE_URL = "http://127.0.0.1:5000"
+BASE_URL="http://127.0.0.1:5000"
 
-#Test user credentials
-username = "Blessing"
-original_password = "MAB2010"
-new_password = "Bless2010"
+#Testuser credentials
+username="Getty"
+original_password="Getty1976"
+new_password="Gettty"
 
 #Tokens
-access_token = None
-refresh_token = None
+access_token=None
+refresh_token=None
 
 def print_step(step,response):
     print(f"\n--- {step} ---")
@@ -26,7 +26,7 @@ resp = requests.post(f"{BASE_URL}/auth/register", json={
     "role": "user"
 })
 if resp.status_code in [400, 409]:
-    print(f"User '{username}' already exist. Continuing...")
+    print(f"User '{username}' already exist.")
 else:
     print_step("Register",resp)
 
@@ -36,7 +36,7 @@ resp=requests.post(f"{BASE_URL}/auth/login",json={
     "password":original_password
 })
 if resp.status_code!=200:
-    print("Login failed,trying new password...")
+    print("Login failed,use your new password")
     resp=requests.post(f"{BASE_URL}/auth/login",json={
         "username":username,
         "password":new_password
@@ -77,7 +77,7 @@ print_step("Protected After Logout", resp)
 resp = requests.post(f"{BASE_URL}/auth/forgot-password", json={
     "username": username
 })
-print_step("Forgot Password", resp)
+print_step("Forgot password", resp)
 reset_link = resp.json().get("reset_link")
 reset_token = reset_link.split("/")[-1] if reset_link else None
 
@@ -86,11 +86,11 @@ if reset_token:
     resp = requests.post(f"{BASE_URL}/auth/reset-password/{reset_token}", json={
         "new_password": new_password
     })
-    print_step("Reset Password", resp)
+    print_step("Reset your password", resp)
 
     #11. Login with new password
     resp = requests.post(f"{BASE_URL}/auth/login", json={
         "username": username,
         "password": new_password
     })
-    print_step("Login With New Password", resp)
+    print_step("Login with new password", resp)

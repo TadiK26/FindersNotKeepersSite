@@ -15,15 +15,15 @@ Dependencies
 - Flask-JWT-Extended (for authentication)
 - SQLAlchemy (for database)
 
-
 Files
 
 app.py
 #To understand how it works(https://www.geeksforgeeks.org/python/python-introduction-to-web-development-using-flask/)
 -This file only creates the app
-- Blueprint prefix is /findersnotkeepers but removed for now
-- Authentication uses JWT tokens
-- Activate virtual environment before running(python app.py)
+-Sets setup authentication
+
+
+
 
 
 

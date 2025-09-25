@@ -1,8 +1,9 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify,request
 from flask_jwt_extended import jwt_required,get_jwt_identity
 from extensions import db
 from models import User
 from functools import wraps
+from log_utils import create_report
 
 admin_bp=Blueprint('admin',__name__,url_prefix='/admin')
 
@@ -42,3 +43,12 @@ def delete_user(user_id):
     db.session.delete(user)
     db.session.commit()
     return jsonify({"Message":f"{user.username} has been successfully deleted."}), 200
+
+@admin_bp.route('/generate_report', methods=['POST'])
+def generate_report():
+    data = request.get_json()
+    report = create_report(
+        report_type=data.get("type"),
+        content=data.get("content")
+    )
+    return jsonify({"message": "Report generated", "reportID": report.reportID}), 201
