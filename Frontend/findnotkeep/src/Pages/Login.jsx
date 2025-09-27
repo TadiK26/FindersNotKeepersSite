@@ -17,7 +17,7 @@ export default function Login() {
       setError('Please fill in both fields.')
       return
     }
-    navigate('/profile') // TODO: connect to real backend auth
+    navigate('/listings') // TODO: connect to real backend auth
   }
 
   // Google Sign-In
@@ -29,7 +29,7 @@ export default function Login() {
           try {
             const payload = JSON.parse(atob(response.credential.split('.')[1]))
             alert(`Signed in as: ${payload.email || payload.name}`)
-            navigate('/profile')
+            navigate('/listings')
           } catch (err) {
             console.error("Failed to decode Google token", err)
           }
@@ -96,7 +96,7 @@ export default function Login() {
         </div>
 
         <p className="login-footer">
-          Don’t have an account? <Link to="/signup">Sign Up</Link>
+          Don't have an account? <Link to="/signup">Sign Up</Link>
         </p>
       </div>
     </main>

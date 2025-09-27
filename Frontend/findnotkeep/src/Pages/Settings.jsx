@@ -8,7 +8,7 @@ export default function Settings() {
       <header className="settings-top">
         <img src={logo} alt="FindersNotKeepers" className="settings-logo" />
         <h1 className="settings-title">Settings <span className="gear">⚙️</span></h1>
-        <Link to="/" className="settings-home">HOME</Link>
+        <Link to="/listings" className="settings-home">HOME</Link>
       </header>
 
       <div className="settings-bar" />
@@ -73,8 +73,8 @@ export default function Settings() {
           <summary>Logout</summary>
           <div className="settings-block">
             <p>You’re currently signed in.</p>
-            <button className="btn-danger" onClick={()=>alert('Log out action here')}>
-              Log out
+            <button className="btn-danger" onClick={()=>alert('Log out action here')}>  
+              <Link to="/" className="settings-logout">Log out</Link>
             </button>
           </div>
         </details>
