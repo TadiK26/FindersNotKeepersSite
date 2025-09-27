@@ -1,7 +1,10 @@
 from User import User
 from Session import Session
 from datetime import date
+from Notification import Notification
 import mysql.connector
+import os
+from dotenv import load_dotenv
 
 #Tests that a user can register
 def SessionTest_1():
@@ -12,21 +15,18 @@ def SessionTest_1():
                       Lastname="Banner", 
                       Firstnames="Bruce",
                       Email="smash@proton.com", 
-                      UP_ID="NULL", 
                       PlainTextPassword="BulkyScientist", 
                       CreationMethod="Site Registration", 
-                      PhoneNumber="NULL", 
                       ProfileImageID=1)
     
     if(new_user is not None):
         print("Test Passed\nNew User ID:", new_user.UserID)
 
         conn = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="tadiwanashe",
-            database="findersnotkeepers"
-        )
+            host=os.getenv("DB_HOST"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            database="findersnotkeepers")
     
         cursor = conn.cursor()
         cursor.execute("DELETE FROM Users WHERE UserID = %s", (new_user.UserID,))
@@ -146,11 +146,10 @@ def UserTest_2():
             res = user.MakeListing("Cowl", 3, "Hides Identity", "Engineerng 2", False, 1)
             
             conn = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="tadiwanashe",
-            database="findersnotkeepers"
-            )
+            host=os.getenv("DB_HOST"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            database="findersnotkeepers")
         
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM Listings ORDER BY ListingID DESC LIMIT 1")
@@ -177,23 +176,22 @@ def UserTest_3():
     current_session = Session("Cur_Sesh","187.90.85.204")
     [state, user] = current_session.logIn("Batman","AuraFarmer")
 
-    res = user.ContactUser(10008)
+    if user is not None:
+        res = user.ContactUser(11001)
 
-    if(res is None):
-        print("User Test 3.1 - Contact User that doesn't exist: Passed")
-    else:
-        print("User Test 3.1 - Contact User that doesn't exist : Failed")
+        if(res is None):
+            print("User Test 3.1 - Contact User that doesn't exist: Passed")
+        else:
+            print("User Test 3.1 - Contact User that doesn't exist : Failed")
 
-    res,id = user.ContactUser(10009)
+        res,id = user.ContactUser(10004)
 
-    if(id > 0):
-        print("User Test 3.2 - Contact User that does exist: Passed")
-    else:
-        print("User Test 3.2 - Contact User that does exist: Failed")
+        if(id > 0):
+            print("User Test 3.2 - Contact User that does exist: Passed")
+        else:
+            print("User Test 3.2 - Contact User that does exist: Failed")
 
-    print("\n")
-
-
+        print("\n")
 
 def UserTests():
     print("Unit Tests for User.py: \n-----------------------------------")
@@ -201,9 +199,23 @@ def UserTests():
     UserTest_2()
     UserTest_3()
 
+#Tests that the backend can open the SMTP email server and send an email to a specified email address
+def NotificationTest_1():
+    noti = Notification(5)
+
+    #recipient = "miniepe321@gmail.com"
+    recipient = "miniepe321+test@gmail.com"
+    subject = "Testing Email send placebo"
+    body = "Hey,\n\n Hope this finds you well and that this works. \n\n\n\nSent from Python"
+
+    noti.send_email(recipient, subject, body)
 
 
 ##########Tests##########
 
 SessionTests()
-#UserTests()
+UserTests()
+
+#NotificationTest_1()
+
+#SessionTest_1()

@@ -4,13 +4,11 @@
     `Lastname` VARCHAR(255)  NOT NULL ,
     `Firstnames` VARCHAR(255)  NOT NULL ,
     `Email` VARCHAR(255)  NOT NULL ,
-    `UP_ID` VARCHAR(9)  NULL , -- Optional university Of Pretoria ID (8 character limit)
     `PasswordHash` VARCHAR(255)  NOT NULL ,
     `Role` VARCHAR(255)  NOT NULL ,
     `NotificationPreference` int  NOT NULL ,
     `DateOfCreation` DATE  NOT NULL ,
     `CreationMethod` VARCHAR(255)  NOT NULL ,
-    `PhoneNumber` VARCHAR(255)  NULL ,
     `LastLoginDate` DATE  NULL ,  
     `ProfileImageID` int  NOT NULL , -- Optional profile image
     PRIMARY KEY (
@@ -21,9 +19,6 @@
     ),
     CONSTRAINT `uc_Users_Email` UNIQUE (
         `Email`
-    ),
-    CONSTRAINT `uc_Users_PhoneNumber` UNIQUE (
-        `PhoneNumber`
     )
 );
 
@@ -49,7 +44,6 @@ CREATE TABLE IF NOT EXISTS `Listings` (
     `CloseDate` DATE  NULL ,  
     `ClaimantID` int  NULL , -- User who claimed the item
     `LocationLost` VARCHAR(255)  NOT NULL ,  -- Where item was lost/found
-    `ContactInfo` VARCHAR(255)  NULL , -- Additional contact information
     PRIMARY KEY (
         `ListingID`
     )

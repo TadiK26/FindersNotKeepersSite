@@ -1,39 +1,45 @@
 import mysql.connector
 import os
+import sys
+import json
+import base64
+import hashlib
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from dotenv import load_dotenv
 from datetime import date
-
 from Notification import Notification
 
 #Represents a user in the system
 class User:
     def __init__(self, UserID=None, Username=None, Lastname=None, Firstnames=None,
-                 Email=None, UP_ID=None, PasswordHash=None, Role=None,
+                 Email=None, PasswordHash=None, Role=None,
                  NotificationPreference=0, DateOfCreation=None,
-                 CreationMethod=None, PhoneNumber=None,
-                 LastLoginDate=None, ProfileImageID=None):
+                 CreationMethod=None, LastLoginDate=None, ProfileImageID=None):
         
         self.UserID = UserID
         self.Username = Username
         self.Lastname = Lastname
         self.Firstnames = Firstnames
         self.Email = Email
-        self.UP_ID = UP_ID
         self.PasswordHash = PasswordHash
         self.Role = Role
         self.NotificationPreference = NotificationPreference
         self.DateOfCreation = DateOfCreation
         self.CreationMethod = CreationMethod
-        self.PhoneNumber = PhoneNumber
         self.LastLoginDate = LastLoginDate
         self.ProfileImageID = ProfileImageID
 
     #Connect to the database
     @staticmethod
     def get_connection():
+        load_dotenv()
+
         return mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="tadiwanashe",
+            host=os.getenv("DB_HOST"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
             database="findersnotkeepers"
         )
     
@@ -236,13 +242,12 @@ class User:
     
     def MarkReturned(self, listingID: int):
 
-        """Mark an item as returned to its owner.
+        """Claimaint/Poster can mark an item as being returned to its owner.
             Args:
                 self: User object
                 listingID(int): ID of the listing
             Returns:
-                int: indicates success of listing removal
-            
+                int: indicates success of listing removal       
         """
 
         conn = self.get_connection()
@@ -276,7 +281,7 @@ class User:
         Noti = Notification(5,listingID, ImageID, self.UserID)
 
     def ContactUser(self, participant2ID):
-        """ Opens message history between two users
+        """ Opens the message history between two users
             Args:
                 self: Class Object
                 participant2ID(int): Id of the other user who the current user wishes to contact
@@ -293,11 +298,23 @@ class User:
             conn = self.get_connection()
             cursor = conn.cursor()
 
+            cantor_pair = int((user_1**2 + user_1 + 2*user_1*user_2 + 3*user_2 + user_2**2)/2)
+
+            letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            letter_pair = ""
+            n = cantor_pair
+
+            for i in range(4):
+                letter_pair = letters[n % 26] + letter_pair
+                n //= 26
+
+            messageID = f"{letter_pair}_{cantor_pair}"
+            print(messageID)
+
             query = """ SELECT * FROM MessageThread
-                        WHERE Participant1 = %s AND Participant2 = %s
-                    """
+                        WHERE ThreadID = %s"""
             
-            values = (user_1, user_2)
+            values = (messageID)
 
             cursor.execute(query, values)
 
@@ -306,30 +323,29 @@ class User:
             cursor.close()
             conn.close()
 
-            threadID = None
 
             if(row is None):
-                threadID = self.CreateMessageThread(user_1, user_2)
-            else:
-                threadID = row[0]
+                self.CreateMessageThread(user_1, user_2)
+
 
             subfolder = "MessageThreads"
-            filename = str(threadID) + "_messages.txt"
+            filename = str(messageID) + "_messages.txt"
             filepath = os.path.join(subfolder, filename)
 
             content = None
 
             with open(filepath, "r") as file:
-                content = file.read()
+                content = self.decrypt(user_1, user_2, f"{messageID}.txt")
             
-            return content,threadID
+            return content
 
         else:
             return None
       
-    def CreateMessageThread(self,party1: int, party2: int):
+    def CreateMessageThread(self,threadId, party1: int, party2: int):
         """Create a message thread between 2 users
             Args:
+                threadId(string):   the unique pairing found from the cantor pair of the two users
                 party1(int): user id with lowest absolute value 
                 party2(int): user id with highest absolute value
             Returns:
@@ -341,36 +357,116 @@ class User:
 
         #Create an entry of the message thread
         query = """ INSERT INTO MessageThread 
-                    (Participant1, Participant2)
-                    VALUES(%s,%s)
+                    (ThreadID, Participant1, Participant2)
+                    VALUES(%s, %s,%s)
                 """
             
-        values = (party1, party2)
+        values = (threadId, party1, party2)
         cursor.execute(query, values) 
         conn.commit()
-
-        messageID = cursor.lastrowid
 
         cursor.close()
         conn.close()
 
         #Create the file with the unique primary key as title
         subfolder = "MessageThreads"
-        filename = str(messageID) + "_messages.txt"
+        filename = str(threadId) + ".json"
         filepath = os.path.join(subfolder, filename)
 
-        # Create the message thread subfolder if it doesn't exist
         os.makedirs(subfolder, exist_ok=True)
 
         # Write to the file inside the subfolder
         with open(filepath, "w") as file:
-            file.write("This file is saved inside a subfolder.\n")
-            file.write("Each interaction can be logged here.\n")
-
-        return messageID
+            file.write(f"Message thread between {party1} and {party2}.\n")
     
     def SendMessage(self, messageID: int, recipient: int, contents: str):
-        """Send a message to another user."""
+        """Send a message to another user.
+            Args: 
+                messageID(int):     Unique ID for the interaction between the two users
+        """
         
         conn = self.get_connection()
         cursor = conn.cursor()
+
+    def generateKey(self, id1: int, id2: int):
+
+        # Sort so that either user can supply ids in any order
+        a, b = sorted([int(id1), int(id2)])
+        shared = f"{a}:{b}".encode('utf-8')
+        # Deterministic "salt" derived from the ids (so both sides get same salt)
+        salt = hashlib.sha256(shared).digest()[:16]  # 16 bytes
+        hkdf = HKDF(
+            algorithm=hashes.SHA256(),
+            length=32,           # 32 bytes = 256-bit key
+            salt=salt,
+            info=b"two-id-comm-key",
+        )
+        key = hkdf.derive(shared)
+        return key
+
+    def decrypt(self, id1: int, id2: int, filename: str) -> str:
+        """
+            Decrypt a file and return its contents as a plain text string.
+            
+            Args:
+                id1, id2: User IDs for key generation
+                filename: Path to the encrypted file
+                
+            Returns:
+                str: Decrypted contents as a plain text string
+        """
+        with open(f"{filename}.json", 'r') as f:
+            data = json.load(f)
+        nonce = base64.b64decode(data["nonce_b64"])
+        ct = base64.b64decode(data["ciphertext_b64"])
+        key = self.generateKey(id1, id2)
+        aesgcm = AESGCM(key)
+        try:
+            plaintext_bytes = aesgcm.decrypt(nonce, ct, associated_data=None)
+            return plaintext_bytes.decode('utf-8')
+        except Exception as e:
+            print("Decryption failed (wrong ids or tampered file).")
+            raise
+
+    def encrypt(self, id1: int, id2: int, plaintext: str, filename: str):
+        """
+            Append plaintext to the existing decrypted contents of a file and encrypt back to the same file.
+            
+            Args:
+                id1, id2: User IDs for key generation
+                plaintext: Text to append to the file
+                filename: Path to the encrypted file to modify
+        """
+
+        # Try to decrypt existing file contents if file doesn't exist or can't be decrypted return nothing
+        try:
+            existing_content = self.decrypt(id1, id2, filename)
+        except (FileNotFoundError, json.JSONDecodeError, Exception):
+            
+            return 0
+        
+        # Append new text to the existing content
+        combined_content = existing_content + plaintext
+        
+        # Encrypt the combined content
+        key = self.generateKey(id1, id2)
+        aesgcm = AESGCM(key)
+        nonce = os.urandom(12)  # 96-bit nonce for AES-GCM
+        ct = aesgcm.encrypt(nonce, combined_content.encode('utf-8'), associated_data=None)
+        
+        # Package data needed for decryption
+        out = {
+            "ids_sorted": ":".join(map(str, sorted([int(id1), int(id2)]))),
+            "salt_hex": hashlib.sha256(f"{min(int(id1),int(id2))}:{max(int(id1),int(id2))}".encode()).digest()[:16].hex(),
+            "nonce_b64": base64.b64encode(nonce).decode('utf-8'),
+            "ciphertext_b64": base64.b64encode(ct).decode('utf-8'),
+            "kdf_info": "HKDF-SHA256 length=32 info='two-id-comm-key' deterministic-salt-from-ids"
+        }
+        
+        # Write encrypted content back to the same file
+        with open(f"{filename}.txt", 'w') as f:
+            json.dump(out, f, indent=2)
+        
+        return 1
+    
+

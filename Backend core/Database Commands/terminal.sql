@@ -1,1 +1,1 @@
-SELECT DATE_FORMAT(DateOfCreation, '%Y-%m-%d') as creation_date FROM Users;
+DELETE FROM Users WHERE Username = "Hulk"

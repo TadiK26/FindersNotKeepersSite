@@ -14,24 +14,24 @@ INSERT INTO `Image` (`URL`, `OriginalFileName`, `FileSize`) VALUES
 ('https://example.com/images/jacket.jpg', 'red_jacket.jpg', 1280.5);
 
 -- Sample users with corrected roles and admin ID ranges
-INSERT INTO `Users` (`UserID`, `Username`, `Lastname`, `Firstnames`, `Email`, `UP_ID`, `PasswordHash`, `Role`, `NotificationPreference`, `CreationMethod`, `PhoneNumber`, `ProfileImageID`) VALUES
-(10000, 'john_doe', 'Doe', 'John Michael', 'john.doe@up.ac.za', 'u12345678', '$2b$12$Rcn9G54vuSy8wrYWrBK1P.Dknm3j.kPkT8R0SZBP7EKSMwiUsqfTi', 'USER', 2, 'Manual Registration', '+27123456789', 2),
-(10001, 'sarah_smith', 'Smith', 'Sarah Jane', 'sarah.smith@up.ac.za', 'u87654321', '$2b$12$Rcn9G54vuSy8wrYWrBK1P.Dknm3j.kPkT8R0SZBP7EKSMwiUsqfTi', 'USER', 3, 'Manual Registration', '+27987654321', 3),
-(150, 'admin_wilson', 'Wilson', 'David Robert', 'admin@up.ac.za', NULL, '$2b$12$Rcn9G54vuSy8wrYWrBK1P.Dknm3j.kPkT8R0SZBP7EKSMwiUsqfTi', 'ADMIN', 1, 'System Creation', '+27111222333', 1),
-(10003, 'mike_jones', 'Jones', 'Michael Anthony', 'mike.jones@tuks.co.za', 'u11223344', '$2b$12$Rcn9G54vuSy8wrYWrBK1P.Dknm3j.kPkT8R0SZBP7EKSMwiUsqfTi', 'USER', 4, 'Manual Registration', '+27444555666', 4),
-(10004, 'emma_brown', 'Brown', 'Emma Louise', 'emma.brown@up.ac.za', 'u99887766', '$2b$12$Rcn9G54vuSy8wrYWrBK1P.Dknm3j.kPkT8R0SZBP7EKSMwiUsqfTi', 'USER', 5, 'Google SSO', '+27777888999', 1),
-(10005, 'prof_adams', 'Adams', 'Professor James', 'j.adams@up.ac.za', 'p00112233', '$2b$12$Rcn9G54vuSy8wrYWrBK1P.Dknm3j.kPkT8R0SZBP7EKSMwiUsqfTi', 'STAFF', 2, 'Manual Registration', '+27333444555', 1),
-(250, 'admin_clark', 'Clark', 'Lisa Marie', 'l.clark@up.ac.za', NULL, '$2b$12$Rcn9G54vuSy8wrYWrBK1P.Dknm3j.kPkT8R0SZBP7EKSMwiUsqfTi', 'ADMIN', 2, 'System Creation', '+27222333444', 1);
+INSERT INTO `Users` (`UserID`, `Username`, `Lastname`, `Firstnames`, `Email`, `PasswordHash`, `Role`, `NotificationPreference`, `CreationMethod`, `ProfileImageID`) VALUES
+(10000, 'john_doe', 'Doe', 'John Michael', 'miniepe321+john_doe@gmail.com',  '$2b$12$Rcn9G54vuSy8wrYWrBK1P.Dknm3j.kPkT8R0SZBP7EKSMwiUsqfTi', 'USER', 2, 'Manual Registration', 2),
+(10001, 'sarah_smith', 'Smith', 'Sarah Jane', 'miniepe321+sarah_smith@gmail.com','$2b$12$Rcn9G54vuSy8wrYWrBK1P.Dknm3j.kPkT8R0SZBP7EKSMwiUsqfTi', 'USER', 3, 'Manual Registration', 3),
+(150, 'admin_wilson', 'Wilson', 'David Robert', 'miniepe321+admin_wilson@gmail.com','$2b$12$Rcn9G54vuSy8wrYWrBK1P.Dknm3j.kPkT8R0SZBP7EKSMwiUsqfTi', 'ADMIN', 1, 'System Creation',  1),
+(10003, 'mike_jones', 'Jones', 'Michael Anthony', 'miniepe321+mike_jones@gmail.com', '$2b$12$Rcn9G54vuSy8wrYWrBK1P.Dknm3j.kPkT8R0SZBP7EKSMwiUsqfTi', 'USER', 4, 'Manual Registration',  4),
+(10004, 'emma_brown', 'Brown', 'Emma Louise', 'miniepe321+emma_brown@gmail.com', '$2b$12$Rcn9G54vuSy8wrYWrBK1P.Dknm3j.kPkT8R0SZBP7EKSMwiUsqfTi', 'USER', 5, 'Google SSO',  1),
+(10005, 'prof_adams', 'Adams', 'Professor James', 'miniepe321+prof_adams@gmail.com', '$2b$12$Rcn9G54vuSy8wrYWrBK1P.Dknm3j.kPkT8R0SZBP7EKSMwiUsqfTi', 'STAFF', 2, 'Manual Registration',  1),
+(250, 'admin_clark', 'Clark', 'Lisa Marie', 'miniepe321+admin_clark@gmail.com', '$2b$12$Rcn9G54vuSy8wrYWrBK1P.Dknm3j.kPkT8R0SZBP7EKSMwiUsqfTi', 'ADMIN', 2, 'System Creation',  1);
 
 -- Sample listings
-INSERT INTO `Listings` (`UserID`, `ItemTitle`, `CategoryID`, `Description`, `Image1ID`, `Image2ID`, `Status`, `LocationLost`, `ContactInfo`) VALUES
-(10000, 'Lost iPhone 13 Pro', 2, 'Blue iPhone 13 Pro with cracked screen protector. Has a black case with card holder.', 5, NULL, 'Active', 'IT Building - Computer Lab 2', 'Please contact via WhatsApp'),
-(10001, 'Found Brown Leather Wallet', 4, 'Found brown leather wallet containing student card and some cash. No ID visible.', 6, NULL, 'Active', 'Library - Ground Floor Reading Area', 'Will meet at campus security office'),
-(10003, 'Lost Blue Backpack', 6, 'Navy blue Jansport backpack with multiple compartments. Contains textbooks and notebooks.', 7, NULL, 'Active', 'Engineering Building - Lecture Hall C', NULL),
-(10000, 'Found Car Keys', 5, 'Toyota car keys with blue keychain. Found near parking area.', 8, NULL, 'Claimed', 'Main Campus - Parking Lot B', 'Contact through campus messaging'),
-(10004, 'Lost Dell Laptop', 2, 'Dell Inspiron 15 with Ubuntu stickers. In black laptop bag.', 9, NULL, 'Active', 'Student Center - Food Court', 'Reward offered - R500'),
-(10001, 'Found Sony Headphones', 2, 'Black over-ear Sony headphones. Model WH-CH720N.', 10, NULL, 'Active', 'Music Department - Practice Room 5', NULL),
-(10003, 'Lost Red Jacket', 3, 'Red windbreaker jacket, size Medium. Has UP logo on the back.', 11, NULL, 'Closed', 'Sports Complex - Main Gym', 'Already found - thanks!');
+INSERT INTO `Listings` (`UserID`, `ItemTitle`, `CategoryID`, `Description`, `Image1ID`, `Image2ID`, `Status`, `LocationLost`) VALUES
+(10000, 'Lost iPhone 13 Pro', 2, 'Blue iPhone 13 Pro with cracked screen protector. Has a black case with card holder.', 5, NULL, 'Active', 'IT Building - Computer Lab 2'),
+(10001, 'Found Brown Leather Wallet', 4, 'Found brown leather wallet containing student card and some cash. No ID visible.', 6, NULL, 'Active', 'Library - Ground Floor Reading Area'),
+(10003, 'Lost Blue Backpack', 6, 'Navy blue Jansport backpack with multiple compartments. Contains textbooks and notebooks.', 7, NULL, 'Active', 'Engineering Building - Lecture Hall C'),
+(10000, 'Found Car Keys', 5, 'Toyota car keys with blue keychain. Found near parking area.', 8, NULL, 'Claimed', 'Main Campus - Parking Lot B'),
+(10004, 'Lost Dell Laptop', 2, 'Dell Inspiron 15 with Ubuntu stickers. In black laptop bag.', 9, NULL, 'Active', 'Student Center - Food Court'),
+(10001, 'Found Sony Headphones', 2, 'Black over-ear Sony headphones. Model WH-CH720N.', 10, NULL, 'Active', 'Music Department - Practice Room 5'),
+(10003, 'Lost Red Jacket', 3, 'Red windbreaker jacket, size Medium. Has UP logo on the back.', 11, NULL, 'Closed', 'Sports Complex - Main Gym');
 
 -- Update one listing to have a claimant
 UPDATE `Listings` SET `ClaimantID` = 10004, `CloseDate` = '2024-09-20' WHERE `ListingID` = 4;

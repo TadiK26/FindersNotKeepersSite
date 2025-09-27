@@ -1,5 +1,7 @@
 import mysql.connector
 import bcrypt
+import os
+from dotenv import load_dotenv
 from User import User
 
 #Handles user authentication and session management.
@@ -11,16 +13,17 @@ class Session:
     #Connect to the database
     @staticmethod
     def get_connection():
+        load_dotenv()
+
         return mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="tadiwanashe",
+            host=os.getenv("DB_HOST"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
             database="findersnotkeepers"
         )
 
     def register(self,Username=None, Lastname=None, Firstnames=None,Email=None, 
-                 UP_ID=None, PlainTextPassword=None, CreationMethod=None, 
-                 PhoneNumber=None, ProfileImageID=1):
+                 PlainTextPassword=None, CreationMethod=None, ProfileImageID=1):
         """
             Register a new user account.
             Args:
@@ -37,13 +40,12 @@ class Session:
 
         query = """
             INSERT INTO Users 
-            (Username, Lastname, Firstnames, Email, UP_ID, PasswordHash, Role, 
-             NotificationPreference, CreationMethod, PhoneNumber, ProfileImageID)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            (Username, Lastname, Firstnames, Email, PasswordHash, Role, 
+             NotificationPreference, CreationMethod, ProfileImageID)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
         values = (Username, Lastname, Firstnames, Email,
-                      UP_ID, PasswordHash, "USER",1,
-                      CreationMethod, PhoneNumber, ProfileImageID)
+                       PasswordHash, "USER", 1, CreationMethod, ProfileImageID)
         
         cursor.execute(query, values)
         UserID = cursor.lastrowid
@@ -105,13 +107,11 @@ class Session:
         self.Lastname = None
         self.Firstnames = None
         self.Email = None
-        self.UP_ID = None
         self.PasswordHash = None
         self.Role = None
         self.NotificationPreference = None
         self.DateOfCreation = None
         self.CreationMethod = None
-        self.PhoneNumber = None
         self.LastLoginDate = None
         self.ProfileImageID = None
     
@@ -145,13 +145,10 @@ class Session:
             user_profile.Lastname = str(row['Lastname'])
             user_profile.Firstnames = str(row['Firstnames'])
             user_profile.Email = str(row['Email'])
-            user_profile.UP_ID = str(row['UP_ID'])
             user_profile.PasswordHash = str(row['PasswordHash'])
             user_profile.Role = str(row['Role'])
             user_profile.NotificationPreference = int(row['NotificationPreference'])
             user_profile.DateOfCreation = str(row['DateOfCreation'])
-            user_profile.CreationMethod = str(row['CreationMethod'])
-            user_profile.PhoneNumber = str(row['PhoneNumber'])
             user_profile.LastLoginDate = str(row['LastLoginDate'])
             user_profile.ProfileImageID = str(row['ProfileImageID'])
             
