@@ -1,0 +1,205 @@
+/* layout container */
+.profile-wrap{
+  min-height: 100vh;
+  margin-left: -3rem;
+}
+
+/* header */
+.profile-top{
+  width: min(80rem, 92vw);
+  margin: 0 auto 0.75rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto; /* logo | title | home */
+  align-items: center;
+  gap: 1rem;
+}
+
+.profile-logo{ width: 4.5rem; height: auto; }
+.profile-title{
+  margin: 0;
+  text-align: center;
+  font-weight: 800;
+  font-size: clamp(1.8rem, 1rem + 2vw, 3rem);
+}
+/* imported SVG header icon */
+.profile-icon-svg{
+  width: 28px;
+  height: 28px;
+  margin-left: .35rem;
+  vertical-align: middle;
+}
+.profile-home{
+  text-decoration: none;
+  font-weight: 700;
+  color: #2b50ff;
+}
+
+/* gradient bar */
+.profile-bar{
+  width: min(80rem, 92vw);
+  margin: .25rem auto 1.25rem;
+  height: .35rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2ecc71 0%, #4a89ff 100%);
+  filter: drop-shadow(0 8px 10px rgba(0,0,0,.08));
+}
+
+/* main 2-col grid */
+.profile-grid{
+  width: min(80rem, 92vw);
+  margin: 0 auto 1.5rem;
+  display: grid;
+  grid-template-columns: 1.25fr .9fr; /* form | avatar */
+  gap: 2rem;
+}
+@media (max-width: 880px){
+  .profile-grid{ grid-template-columns: 1fr; }
+}
+
+/* form rows */
+.profile-form{
+  display: grid;
+  gap: 1.25rem;
+}
+.pf-row{ display: grid; gap: .5rem; }
+
+.pf-label{
+  font-weight: 800;
+  font-size: clamp(1.1rem, .6vw + 1rem, 1.6rem);
+  color: #222;
+}
+
+.pf-input-wrap{
+  position: relative;
+  display: grid;
+}
+
+.pf-input{
+  padding: .95rem 3rem .95rem 1rem;
+  border: 2px solid #1a1a1a;
+  border-radius: .5rem;
+  font-size: clamp(1rem, .4vw + .95rem, 1.25rem);
+  background: #fff;
+}
+.pf-input:disabled{
+  background: #fafafa;
+  color: #333;
+}
+
+.pf-edit{
+  position: absolute;
+  right: .5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  font-size: 1.1rem;
+  cursor: pointer;
+  opacity: .8;
+}
+.pf-edit:hover{ opacity: 1; }
+
+/* Save button */
+.pf-actions{ margin-top: .5rem; }
+.primary-btn{
+  padding: .8rem 1.1rem;
+  border: 0;
+  border-radius: .6rem;
+  background: #1a73e8;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+.primary-btn:disabled{ opacity: .5; cursor: not-allowed; }
+
+/* avatar section */
+.profile-avatar{
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: .5rem;
+}
+
+.avatar-circle{
+  width: clamp(10rem, 28vw, 15rem);
+  height: clamp(10rem, 28vw, 15rem);
+  border-radius: 50%;
+  background: #d9d9d9;
+  border: 2px solid #cfcfcf;
+  display: grid;
+  place-items: center;
+  user-select: none;
+  cursor: pointer;
+  overflow: hidden;
+}
+.avatar-circle.has-img{
+  background: #000;
+}
+.avatar-circle img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.avatar-hint{
+  display: grid;
+  place-items: center;
+  text-align: center;
+  gap: .15rem;
+  font-size: .9rem;
+  color: #333;
+}
+
+.upload-err{
+  margin: 0;
+  color: #c62828;
+  font-weight: 600;
+  font-size: .95rem;
+}
+
+/* My listings box */
+.my-listings{
+  width: min(80rem, 92vw);
+  margin: 4rem auto 0;
+  border: 2px solid #2b50ff;
+  border-radius: .7rem;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 6px 20px rgba(42, 164, 145, .15);
+  outline: 4px solid rgba(42, 164, 145, .25);
+  outline-offset: -8px;
+}
+.my-listings h2{
+  margin: 0 0 .75rem;
+  font-size: clamp(1.2rem, .6vw + 1.1rem, 1.6rem);
+}
+
+/* single big button link */
+.big-link-btn{
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 1rem 1.25rem;
+  border-radius: .7rem;
+  border: 2px solid #2b50ff;
+  background: #fff;
+  font-weight: 800;
+  text-decoration: none;
+  color: #111;
+}
+.big-link-btn:hover{ background: #f8fbff; }
+
+/* (legacy link group styles kept in case you revert)
+.my-links{
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem .75rem;
+  align-items: center;
+  font-size: clamp(1rem, .3vw + .95rem, 1.2rem);
+}
+.my-links a{
+  text-decoration: none;
+  color: #111;
+  font-weight: 700;
+}
+.my-links .sep{ opacity: .6; }
+*/

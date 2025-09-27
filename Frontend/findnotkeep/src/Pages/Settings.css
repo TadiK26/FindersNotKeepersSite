@@ -1,20 +1,17 @@
-/* src/Pages/Settings.css */
-.settings-wrap {
-  height: 100vh;       /* full viewport height */
-  overflow-y: auto;    /* allow vertical scrolling */
-  overflow-x: hidden;  /* prevent sideways scroll */
-  padding: 2rem 1rem;  /* optional breathing room */
-}
 
+.settings-wrap{
+  margin-left: 0;
+}
 /*==================================================*/
 /*Grouped items;logo and title*/
 /*==================================================*/
 .settings-top{
-  width: min(58rem, 92vw);
+  width: min(80rem, 92vw);
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 1rem;
+  margin-left:-5rem; 
 }
 /*==================================================*/
 /*logo*/
@@ -22,6 +19,8 @@
 .settings-logo{
   width: 4.25rem;
   height: auto;
+  margin:0;
+  justify-self: center;
 }
 /*==================================================*/
 /*Settings title*/
@@ -48,8 +47,8 @@
 /*Gradiant bar*/
 /*==================================================*/
 .settings-bar{
-  margin-top: -14rem;
-  width: min(58rem, 92vw);
+  margin-left: -5rem;
+  width: min(80rem, 92vw);
   height: .35rem;
   border-radius: 999px;
   background: linear-gradient(90deg,#2ecc71 0%, #4a89ff 100%);
@@ -61,14 +60,15 @@
 .settings-list{
   width: min(58rem, 92vw);
   display: grid;
-  gap: 2rem;
-  margin-top: -25rem
+  gap: 2.5rem;
+  /* margin-top: 5rem; */
+  margin: 5rem auto 0; 
 }
 /*==================================================*/
 /*Settings actual bar(button)*/
 /*==================================================*/
 .settings-item{
-  border: 1px solid #1a1a1a;
+  border: 1.5px solid #1a1a1a;
   border-radius: .5rem;
   background: #fff;
   overflow: hidden;
@@ -81,6 +81,7 @@
   list-style: none;
   padding: 1rem 1.25rem;
   font-weight: 800;
+  font-size: 1.5rem;
   color: #2aa491;
   outline: none;
 }

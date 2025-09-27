@@ -12,7 +12,7 @@ export default function Signup() {
     const { name, value, type, checked } = e.target
     setForm((f) => ({ ...f, [name]: type === 'checkbox' ? checked : value }))
   }
-
+//Errors if form not filled correctly
   const onSubmit = (e) => {
     e.preventDefault()
     setError('')
@@ -21,14 +21,14 @@ export default function Signup() {
     if (form.password !== form.confirm) return setError('Passwords do not match.')
     if (!form.agree) return setError('Please agree to the terms & policy.')
     // TODO: send to backend
-    navigate('/profile')
+    navigate('/listings')
   }
-
+//Google API
   useEffect(() => {
     if (window.google && window.google.accounts?.id) {
       window.google.accounts.id.initialize({
         client_id: "257643953276-8su4c8tr824kok0k40jd2rbgp5ek6roa.apps.googleusercontent.com",
-        callback: () => navigate('/profile'),
+        callback: () => navigate('/listings'),
       })
       window.google.accounts.id.renderButton(
         document.getElementById('googleSignupDiv'),
@@ -38,9 +38,10 @@ export default function Signup() {
   }, [navigate])
 
   return (
+
     <main className="signup-wrap">
       <div className="signup-card">
-        {/* header group (move together) */}
+        {/* header group (move together) - The logo and title page*/}
         <div className="signup-header">
           <img src={logo} alt="FindersNotKeepers" className="signup-logo" />
           <h1 className="signup-title">Get Started Now</h1>
@@ -49,7 +50,7 @@ export default function Signup() {
 
         <form className="signup-form" onSubmit={onSubmit}>
           {error && <div className="signup-error">{error}</div>}
-
+          {/*Name info*/}
           <label className="signup-label">
             Name
             <input
@@ -62,7 +63,7 @@ export default function Signup() {
               required
             />
           </label>
-
+          {/*Email address info*/}
           <label className="signup-label">
             Email address
             <input
@@ -75,7 +76,7 @@ export default function Signup() {
               required
             />
           </label>
-
+          {/*Password info*/}
           <label className="signup-label">
             Password
             <input
@@ -103,13 +104,13 @@ export default function Signup() {
               required
             />
           </label>
-
+        {/*Checkbox for item*/}
           <label className="signup-terms">
             <input type="checkbox" name="agree" checked={form.agree} onChange={onChange} />
             I agree to the <a href="/terms">terms</a> & <a href="/privacy">policy</a>
           </label>
 
-          <button type="submit" className="signup-btn">Signup</button>
+          <button type="submit" className="signup-btn">Sign Up</button>
         </form>
 
         <div className="signup-social">
