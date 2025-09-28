@@ -1,7 +1,7 @@
 from flask import Blueprint,request,jsonify,current_app
 from werkzeug.security import generate_password_hash,check_password_hash
-from extensions import db,jwt
-from models import User
+from extensions import db,jwt,revoke_token
+from models import userModel
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import (get_jwt,verify_jwt_in_request, create_refresh_token,
                                 jwt_required, get_jwt_identity, create_access_token)
@@ -12,29 +12,34 @@ from log_utils import log_audit
 auth_bp=Blueprint('auth',__name__,url_prefix='/auth')#Blueprint for athenitcation
 #finder_bp = Blueprint('finders', __name__, url_prefix='/findersnotkeepers')#home blueprint
 
-revoke_token=set()#blacklist tokens in memoryh
+#revoke_token=set()#blacklist tokens in memoryh
 
 #Route for landing page
 # @finder_bp.route('/')
 # def home():
 #     return 'Track your lost item with us'
+# @jwt.token_in_blocklist_loader
+# def check_if_token_revoked(jwt_header,jwt_payload):
+#     jti=jwt_payload.get("jti")
+#     return jti in revoke_token
 
-def check_if_token_revoked(jwt_header,jwt_payload):
+@jwt.token_in_blocklist_loader
+def check_if_token_revoked(jwt_header, jwt_payload):
     jti=jwt_payload.get("jti")
     return jti in revoke_token
+
 
 def get_serializer():
     # create serializer on demand with app secret
     return URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
 
-
-#Step 1:User creates an account(User registration)
+#Step 1:userModel creates an account(userModel registration)
 @auth_bp.route('/register',methods=['POST'])
 def register():
-    user_data=request.get_json() or {}
-    username=user_data.get('username')
-    password=user_data.get('password')
-    role=user_data.get('role','user')
+    userData=request.get_json() or {}
+    username=userData.get('username')
+    password=userData.get('password')
+    role=userData.get('role','user')
 
     #Chcek if username and password are provided by usr
     if not username or not password:
@@ -45,7 +50,7 @@ def register():
         return jsonify({"Error":"Username must be 14 characters or less"}), 400
 
     #Checj if the username exists
-    # if User.query.filter_by(username=username).first():
+    # if userModel.query.filter_by(username=username).first():
     #     #return jsonify({"message": "Username already taken!"}), 400
     #     return jsonify({"Error":"Username already exists!"}), 400
 
@@ -54,16 +59,15 @@ def register():
         return jsonify({"Error":"Role must be 'user' or 'admin'."}),400
     
     #Create user and hash their password
-    hashed_password=generate_password_hash(password)
-    new_user=User(username=username,password=hashed_password,role=role)
-    db.session.add(new_user)
+    hashedPassword=generate_password_hash(password)
+    newUser=userModel(username=username,password=hashedPassword,role=role)
+    db.session.add(newUser)
     try:
         db.session.commit()
     except IntegrityError:
         db.session.rollback()
         return jsonify({"error":"username or email already exists"}),409
     db.session.commit()
-
     return jsonify({'message':f"Hello,{username} you have been registered successfully as {role}."}),201
 
 
@@ -71,11 +75,11 @@ def register():
 @auth_bp.route('/login',methods=['POST'])
 def login():
     #USer must enter their login details
-    user_data=request.get_json() or {}
-    username=user_data.get('username')
-    password=user_data.get('password')
+    userData=request.get_json() or {}
+    username=userData.get('username')
+    password=userData.get('password')
 
-    user=User.query.filter_by(username=username).first()
+    user=userModel.query.filter_by(username=username).first()
 
     if not username or not password:
         return jsonify({"message":"username and password required"}),400
@@ -87,27 +91,27 @@ def login():
 
     #Check if the user is active
     if not user.is_active:
-        return jsonify({"message":"User is not active!"}),403
+        return jsonify({"message":"userModel is not active!"}),403
     
     #Generate  hashed access token and refresh token
-    # access_token = create_access_token(identity=str(user.user_id), additional_claims={"role": user.role})
-    # refresh_token = create_refresh_token(identity=str(user.user_id))
+    # access_token = create_access_token(identity=str(user.userID), additional_claims={"role": user.role})
+    # refresh_token = create_refresh_token(identity=str(user.userID))
     log_audit(
-        user_id=user.user_id,
+        userID=user.userID,
         action="LOGIN",
-        details=f"IP: {request.remote_addr}, UA: {request.headers.get('User-Agent')}, Session: {request.cookies.get('session') or 'no-session'}"
+        details=f"IP: {request.remote_addr}, UA: {request.headers.get('userModel-Agent')}, Session: {request.cookies.get('session') or 'no-session'}"
     )
 
-    access_token=create_access_token(identity=str(user.user_id),additional_claims={"role":user.role})
-    refresh_token=create_refresh_token(identity=str(user.user_id))
+    access_token=create_access_token(identity=str(user.userID),additional_claims={"role":user.role})
+    refresh_token=create_refresh_token(identity=str(user.userID))
     return jsonify({"access_token": access_token,"refresh_token":refresh_token}),200
 
 # Refresh token route to generate new access token
 @auth_bp.route('/refresh',methods=['POST'])
 @jwt_required(refresh=True)  # only accept refresh tokens
 def refresh():
-    currentUser_id =int(get_jwt_identity())
-    newAccess_token = create_access_token(identity=str(currentUser_id))
+    currentUser_id=int(get_jwt_identity())
+    newAccess_token=create_access_token(identity=str(currentUser_id))
     return jsonify({"Access_token":newAccess_token}),200
 
 #This route check authentication,it is only accessible with a valid access token.
@@ -115,7 +119,7 @@ def refresh():
 @jwt_required()
 def protected():
     currentUser_id=int(get_jwt_identity())
-    user=db.session.get(User,currentUser_id)
+    user=db.session.get(userModel,currentUser_id)
     if not user:
         return jsonify({"message": "user not found"}),404
     return jsonify({"message": f"Hello, {user.username},your role is:{user.role} and your information is protected."}),200
@@ -137,19 +141,19 @@ def logout_refresh():
     return jsonify({"message":"Refresh token has been revoked."}),200
 
 #create serializer inside function using app secret
-#User route to request password
+#userModel route to request password
 #serializer = URLSafeTimedSerializer(auth_bp.config["SECRET_KEY"])
 @auth_bp.route('/forgot-password',methods=['POST'])
 def forgot_password():
-    user_data=request.get_json() or {}
-    username=user_data.get("username")
+    userData=request.get_json() or {}
+    username=userData.get("username")
 
     if not username:
         return jsonify({"error":"username required"}),400
 
-    user=User.query.filter_by(username=username).first()
+    user=userModel.query.filter_by(username=username).first()
     if not user:
-        return jsonify({"Error":"User not found!"}),404
+        return jsonify({"Error":"userModel not found!"}),404
 
     serializer=get_serializer()
     user_token=serializer.dumps(user.username,salt="password-reset")
@@ -165,9 +169,9 @@ def reset_password(token):
     except Exception:
         return jsonify({"message":"Invalid or expired token"}), 400
 
-    user=User.query.filter_by(username=username).first()
+    user=userModel.query.filter_by(username=username).first()
     if not user:
-        return jsonify({"message":"User not found"}), 404
+        return jsonify({"message":"userModel not found"}), 404
 
     data=request.get_json() or {}
     new_password=data.get("new_password")

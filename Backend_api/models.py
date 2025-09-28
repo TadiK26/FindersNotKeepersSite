@@ -1,9 +1,9 @@
 from extensions import db
 from datetime import datetime
 
-class User(db.Model):
+class userModel(db.Model):
     __tablename__ = "users_table"
-    user_id=db.Column(db.Integer,primary_key=True)  # Unique identifier
+    userID=db.Column(db.Integer,primary_key=True)  # Unique identifier
     username=db.Column(db.String(14),unique=True,nullable=False)
     password=db.Column(db.String(200),nullable=False)  # Store hashed passwords
     role=db.Column(db.String(10),nullable=False,default='user')

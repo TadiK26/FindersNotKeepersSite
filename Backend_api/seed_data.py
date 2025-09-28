@@ -1,11 +1,11 @@
 from app import create_app
 from extensions import db
-from models import AuditLog, Report, User
+from models import AuditLog, Report, userModel
 from datetime import datetime, timedelta
 import random
 
 def seed_audit_logs():
-    users=User.query.all()
+    users=userModel.query.all()
     if not users:
         print("No users found! Please register users first.")
         return
@@ -15,7 +15,7 @@ def seed_audit_logs():
     for _ in range(10):
         user=random.choice(users)
         log=AuditLog(
-            userID=user.user_id,
+            userID=user.userID,
             action=random.choice(sample_actions),
             timestamp=datetime.utcnow()-timedelta(days=random.randint(0,30)),
             details=f"IP: 192.168.1.{random.randint(2,254)}, UA: Chrome"
@@ -25,7 +25,7 @@ def seed_audit_logs():
     print("Audit logs seeded succcessfuly")
 
 def seed_report_logs():
-    sample_criteria=["Monthly Activity","User Login Stats","Security Audit"]
+    sample_criteria=["Monthly Activity","userModel Login Stats","Security Audit"]
     
     for _ in range(5):
         report=Report(

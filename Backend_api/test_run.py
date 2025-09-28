@@ -30,7 +30,7 @@ resp = requests.post(f"{BASE_URL}/register", json={
     "role": "user"
 })
 if resp.status_code == 400 and "already exists" in resp.text:
-    print(f"\n User {username} already exists, please login.")
+    print(f"\n userModel {username} already exists, please login.")
 else:
     print_step("Register", resp)
 

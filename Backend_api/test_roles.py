@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash
 import datetime
 import jwt
 
-from run import app, db, User
+from run import app, db, userModel
 
 
 # ------------------- Helpers -------------------
@@ -24,10 +24,10 @@ def client():
         db.create_all()
 
         # Create test users
-        admin = User(username="admin_user",
+        admin = userModel(username="admin_user",
                      password=generate_password_hash("password123"),
                      role="admin")
-        user = User(username="normal_user",
+        user = userModel(username="normal_user",
                     password=generate_password_hash("password123"),
                     role="user")
         db.session.add_all([admin, user])
@@ -45,9 +45,9 @@ def login(client, username, password="password123"):
 
 def create_expired_token(username):
     with app.app_context():
-        user = User.query.filter_by(username=username).first()
+        user = userModel.query.filter_by(username=username).first()
         payload = {
-            "user_id": user.id,
+            "userID": user.id,
             "exp": datetime.datetime.utcnow() - datetime.timedelta(hours=1)
         }
         return _encode_token(payload)
@@ -55,7 +55,7 @@ def create_expired_token(username):
 
 def create_token_for_deleted_user():
     payload = {
-        "user_id": 9999,
+        "userID": 9999,
         "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)
     }
     return _encode_token(payload)
@@ -79,17 +79,17 @@ def test_user_cannot_access_admin(client):
 
 def test_owner_access(client):
     with app.app_context():
-        user = User.query.filter_by(username="normal_user").first()
-        user_id = user.id
+        user = userModel.query.filter_by(username="normal_user").first()
+        userID = user.id
     res = login(client, "normal_user")
     token = res.json["access_token"]
-    r = client.get(f"/users/{user_id}", headers={"Authorization": f"Bearer {token}"})
+    r = client.get(f"/users/{userID}", headers={"Authorization": f"Bearer {token}"})
     assert r.status_code == 200
 
 
 def test_non_owner_access(client):
     with app.app_context():
-        user = User.query.filter_by(username="normal_user").first()
+        user = userModel.query.filter_by(username="normal_user").first()
     res = login(client, "admin_user")
     token = res.json["access_token"]
     r = client.get(f"/users/{user.id}", headers={"Authorization": f"Bearer {token}"})
@@ -117,7 +117,7 @@ def test_access_with_expired_token(client):
 
 def test_inactive_user_access(client):
     with app.app_context():
-        user = User.query.filter_by(username="normal_user").first()
+        user = userModel.query.filter_by(username="normal_user").first()
         user.is_active = False
         db.session.commit()
 

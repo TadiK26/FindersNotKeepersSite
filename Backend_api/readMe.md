@@ -20,7 +20,7 @@ Frontend (Cidra)
 * Uses http requests to call REST API endpoints
 * Frontend must include jwt token headers for all protected routes
 * API returns Json responses that frontend uses to update the UI
-User clicks Login ? Frontend sends POST /auth/login ? Backend verifies user and generates JWT for the user? Frontend stores token and uses it for future requests
+userModel clicks Login ? Frontend sends POST /auth/login ? Backend verifies user and generates JWT for the user? Frontend stores token and uses it for future requests
 
 Database(Tadi)
 * My section uses SQLAlchemy models to communicate with the database

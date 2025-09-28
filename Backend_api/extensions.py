@@ -4,3 +4,4 @@ SQLALCHEMY_DATABASE_URI = "mysql+pymysql://username:password@localhost/db_name"
 
 db=SQLAlchemy()
 jwt=JWTManager()
+revoke_token=set()#blacklist tokens in memoryh

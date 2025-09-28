@@ -1,13 +1,13 @@
 from flask import Blueprint, jsonify,request
 from flask_jwt_extended import jwt_required,get_jwt_identity
 from extensions import db
-from models import User
+from models import userModel
 from functools import wraps
 from log_utils import create_report
 
-admin_bp=Blueprint('admin',__name__,url_prefix='/admin')
+admin_bp=Blueprint('admin',__name__,url_prefix='/admin')#blueprint for admin routes
 
-# Admin-only decorator,
+#Decorator for admins
 def admin_required(fn):
     @wraps(fn)
     def wrapper(*args,**kwargs):
@@ -18,7 +18,7 @@ def admin_required(fn):
         except(TypeError,ValueError):
             return jsonify({"error":"Invalid token identity"}),401
 
-        user=db.session.get(User,currentUser_id)
+        user=db.session.get(userModel,currentUser_id)
         if not user or user.role!='admin':
             return jsonify({"Error":"Access denied, admins only!"}),403
         return fn(*args,**kwargs)
@@ -29,21 +29,22 @@ def admin_required(fn):
 @jwt_required()
 @admin_required
 def get_all_users():
-    users=User.query.all()
-    return jsonify([{"id":u.user_id,"username":u.username,"role":u.role} for u in users])
+    users=userModel.query.all()
+    return jsonify([{"id":u.userID,"username":u.username,"role":u.role} for u in users])
 
 #Admins can delete users
-@admin_bp.route('/admin/users/<int:user_id>',methods=['DELETE'])
+@admin_bp.route('/admin/users/<int:userID>',methods=['DELETE'])
 @jwt_required()
 @admin_required
-def delete_user(user_id):
-    user=db.session.get(User,user_id)
+def delete_user(userID):
+    user=db.session.get(userModel,userID)
     if not user:
-        return jsonify({"Error":"User not found!"}), 404
+        return jsonify({"Error":"userModel not found!"}), 404
     db.session.delete(user)
     db.session.commit()
     return jsonify({"Message":f"{user.username} has been successfully deleted."}), 200
 
+#Admins can generate reports
 @admin_bp.route('/generate_report', methods=['POST'])
 def generate_report():
     data = request.get_json()

@@ -28,8 +28,8 @@ jwt = JWTManager(app)
 
 token_blacklist = set()#blacklist tokens in memory 
 
-#User model
-class User(db.Model):
+#userModel model
+class userModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
@@ -48,18 +48,18 @@ def admin_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         current_user_id = int(get_jwt_identity())
-        user = db.session.get(User, current_user_id)
+        user = db.session.get(userModel, current_user_id)
         if not user or user.role != 'admin':
             return jsonify({"message": "ACcess denied, only admins allowed!"}), 403
         return fn(*args, **kwargs)
     return wrapper
 
-#Allow access only if the logged-in user matches the user_id in the route
+#Allow access only if the logged-in user matches the userID in the route
 def owner_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         current_user_id = int(get_jwt_identity())
-        resource_user_id = kwargs.get('user_id')
+        resource_user_id = kwargs.get('userID')
         if current_user_id != resource_user_id:
             return jsonify({"message": "Access denied, not the owner of the account"}), 403
         return fn(*args, **kwargs)
@@ -72,7 +72,7 @@ def check_if_token_revoked(jwt_header, jwt_payload):
 
 '''These are the steps used to access the web '''
 
-#Step 1: User create an account(User registration)
+#Step 1: userModel create an account(userModel registration)
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -83,14 +83,14 @@ def register():
     if not username or not password:
         return jsonify({"message": "Username and password are required"}), 400
 
-    if User.query.filter_by(username=username).first():
+    if userModel.query.filter_by(username=username).first():
         #return jsonify({"message": "Username already taken!"}), 400
         return jsonify({"message": "Username already exists!"}), 400
 
     if role not in ['user', 'admin']:
         return jsonify({"message": "Role must be 'user' or 'admin'."}), 400
 
-    new_user = User(
+    new_user = userModel(
         username=username,
         password=generate_password_hash(password),
         role=role
@@ -107,12 +107,12 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
-    user = User.query.filter_by(username=username).first()
+    user = userModel.query.filter_by(username=username).first()
     if not user or not check_password_hash(user.password, password):
         return jsonify({"message": "Invalid username or password."}), 401
 
     if not user.is_active:
-        return jsonify({"message": "User is not active"}), 403
+        return jsonify({"message": "userModel is not active"}), 403
 
     access_token = create_access_token(identity=str(user.id))#Token contaims user info(user.id, iat, exp, jti)
     refresh_token = create_refresh_token(identity=str(user.id))
@@ -135,7 +135,7 @@ def refresh():
 @jwt_required()
 def protected():
     current_user_id = int(get_jwt_identity())
-    user = db.session.get(User, current_user_id)
+    user = db.session.get(userModel, current_user_id)
     return jsonify({"message": f"Hello, {user.username}, your role is: {user.role} and your information is protected."}), 200
 
 #This route is for admins only, the can list all users or delte them using their user ID
@@ -143,28 +143,28 @@ def protected():
 @jwt_required()
 @admin_required
 def get_all_users():
-    users = User.query.all()
+    users = userModel.query.all()
     return jsonify([{"id": u.id, "username": u.username, "role": u.role} for u in users])
 
-@app.route('/admin/users/<int:user_id>', methods=['DELETE'])
+@app.route('/admin/users/<int:userID>', methods=['DELETE'])
 @jwt_required()
 @admin_required
-def delete_user(user_id):
-    user = db.session.get(User, user_id)
+def delete_user(userID):
+    user = db.session.get(userModel, userID)
     if not user:
-        return jsonify({"message": "User not found!"}), 404
+        return jsonify({"message": "userModel not found!"}), 404
     db.session.delete(user)
     db.session.commit()
     return jsonify({"message": f"This user, {user.username} has been deleted."}), 200
 
 #Only the owner of the profile can access their own information
-@app.route('/users/<int:user_id>', methods=['GET'])
+@app.route('/users/<int:userID>', methods=['GET'])
 @jwt_required()
 @owner_required
-def get_user_profile(user_id):
-    user = db.session.get(User, user_id)
+def get_user_profile(userID):
+    user = db.session.get(userModel, userID)
     if not user:
-        return jsonify({"message": "User not found!"}), 404
+        return jsonify({"message": "userModel not found!"}), 404
     return jsonify({"id": user.id, "username": user.username, "role": user.role})
 
 #The user can log out during a session
@@ -188,10 +188,10 @@ serializer = URLSafeTimedSerializer(app.config["SECRET_KEY"])
 def forgot_password():
     data = request.get_json()
     username = data.get("username")
-    user = User.query.filter_by(username=username).first()
+    user = userModel.query.filter_by(username=username).first()
 
     if not user:
-        return jsonify({"message": "User not found"}), 404
+        return jsonify({"message": "userModel not found"}), 404
 
     token = serializer.dumps(user.username, salt="password-reset")
     reset_link = f"http://localhost:5000/reset-password/{token}"
@@ -204,9 +204,9 @@ def reset_password(token):
     except Exception:
         return jsonify({"message": "Invalid or expired token"}), 400
 
-    user = User.query.filter_by(username=username).first()
+    user = userModel.query.filter_by(username=username).first()
     if not user:
-        return jsonify({"message": "User not found"}), 404
+        return jsonify({"message": "userModel not found"}), 404
 
     data = request.get_json()
     new_password = data.get("new_password")
