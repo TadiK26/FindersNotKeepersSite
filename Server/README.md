@@ -3,6 +3,7 @@
 cd findersnotkeepers
 git add .
 git commit -m "Added feature"
+git push origin main
 
 ## Server
 
