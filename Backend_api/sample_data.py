@@ -6,7 +6,7 @@ import random
 
 sample_users = [1, 2, 3]  # Replace with actual UserIDs in your Users table
 sample_actions = ["LOGIN", "LOGOUT", "CREATE_REPORT", "DELETE_USER"]
-sample_criteria = ["Monthly Activity", "User Login Stats", "Security Audit"]
+sample_criteria = ["Monthly Activity", "userModel Login Stats", "Security Audit"]
 
 def seed_audit_logs():
     for _ in range(10):
