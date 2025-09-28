@@ -1,12 +1,11 @@
-# utils/log_utils.py
 from datetime import datetime
 from extensions import db
 from models import AuditLog, Report
 
-def log_audit(user_id,action,details=None):
+def log_audit(userID,action,details=None):
     #Save  logins audit entries
     userlogsin=AuditLog(
-        userID=user_id,
+        userID=userID,
         action=action,
         timestamp=datetime.utcnow(),
         details=details
@@ -17,10 +16,10 @@ def log_audit(user_id,action,details=None):
 
 
 #get the app audit logs,if the user id is given, filter by that user
-def get_audit_logs(user_id=None):
+def get_audit_logs(userID=None):
     query=AuditLog.query
-    if user_id:
-        query=query.filter_by(userID=user_id)
+    if userID:
+        query=query.filter_by(userID=userID)
     return query.order_by(AuditLog.timestamp.desc()).all()
 
 

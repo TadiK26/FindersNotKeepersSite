@@ -26,7 +26,7 @@ resp = requests.post(f"{BASE_URL}/auth/register", json={
     "role": "user"
 })
 if resp.status_code in [400, 409]:
-    print(f"User '{username}' already exist.")
+    print(f"userModel '{username}' already exist.")
 else:
     print_step("Register",resp)
 
