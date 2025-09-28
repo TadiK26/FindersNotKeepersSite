@@ -18,23 +18,38 @@ class Chat {
 
     const result = await pool.query(
       `INSERT INTO chats (room_id, user_id, message, created_at) 
-       VALUES ($1, $2, $3, $4) RETURNING *`,
+       VALUES ($1, $2, $3, $4) 
+       RETURNING id, room_id, user_id, message, created_at`,
       [room_id, user_id, message, timestamp]
     );
 
     return result.rows[0];
   }
 
-  // Get all messages for a specific chat room, ordered by creation time
+  // Get all messages for a specific chat room with user info, ordered by creation time
   static async findByRoomId(roomId, limit = 50) {
     const result = await pool.query(
-      `SELECT c.*, u.name as user_name 
+      `SELECT c.*, u.name as user_name, u.email as user_email
        FROM chats c 
        JOIN users u ON c.user_id = u.id 
        WHERE c.room_id = $1 
        ORDER BY c.created_at ASC 
        LIMIT $2`,
       [roomId, limit]
+    );
+
+    return result.rows;
+  }
+  // Get recent chat rooms for a user
+  static async findUserRooms(userId, limit = 20) {
+    const result = await pool.query(
+      `SELECT DISTINCT room_id, MAX(created_at) as last_message_time
+       FROM chats 
+       WHERE user_id = $1 
+       GROUP BY room_id 
+       ORDER BY last_message_time DESC 
+       LIMIT $2`,
+      [userId, limit]
     );
 
     return result.rows;
@@ -62,6 +77,18 @@ class Chat {
 
     return result.rows[0];
   }
+
+  // Get unread message count for a user in specific rooms
+  static async getUnreadCount(userId, roomId, lastSeen) {
+    const result = await pool.query(
+      `SELECT COUNT(*) as unread_count
+       FROM chats 
+       WHERE room_id = $1 AND user_id != $2 AND created_at > $3`,
+      [roomId, userId, lastSeen]
+    );
+
+    return parseInt(result.rows[0].unread_count);
+  }
 }
 
 module.exports = Chat;
@@ -76,4 +103,3 @@ module.exports = Chat;
 
 // Future:
 // real-time chat functionality: combine this code with WebSocket on the server side to push new messages to clients instantly.
-// Additional features: message editing, reactions, or typing indicators.
