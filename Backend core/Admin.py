@@ -1,21 +1,20 @@
 import mysql.connector
 import User
+from Notification import Notification
 
 class Admin(User):
     def __init__(self, UserID=None, Username=None, Lastname=None, Firstnames=None,
-                 Email=None, UP_ID=None, PasswordHash=None, Role=None,
+                 Email=None,PasswordHash=None, Role=None,
                  NotificationPreference=0, DateOfCreation=None,
-                 CreationMethod=None, PhoneNumber=None,
-                 LastLoginDate=None, ProfileImageID=None):
+                 CreationMethod=None, LastLoginDate=None, ProfileImageID=None):
     
         super().__init__(UserID, Username, Lastname, Firstnames,
-                 Email, UP_ID, PasswordHash, Role,
+                 Email, PasswordHash, Role,
                  NotificationPreference, DateOfCreation,
-                 CreationMethod, PhoneNumber,
-                 LastLoginDate, ProfileImageID)
+                 CreationMethod, LastLoginDate, ProfileImageID)
     
     def ReviewProof(self):
-        """Review proof of ownership for an item."""
+        """Review proof of ownership for a listing ."""
         
         pass
     
@@ -27,7 +26,7 @@ class Admin(User):
 
         query = """
             UPDATE Listings SET
-                Status= "Approved"
+                Status= "Claimed", ClaimantID
             WHERE ListingID=%s
             """
 
@@ -43,6 +42,8 @@ class Admin(User):
         conn = self.get_connection()
         cursor = conn.cursor()
 
+
+
         query = """
             UPDATE Listings SET
                 Status= "Approved"
@@ -56,9 +57,15 @@ class Admin(User):
         pass
     
     def GetLogs(self):
-        """Retrieve system logs for auditing."""
-        pass
+
+        message = "Admin request for activity logs"
+        sender = Notification(6,message=message)
     
     def GenerateReport(self):
         """Generate administrative reports."""
-        pass
+
+        message = "Admin request for user report"
+        sender = Notification()
+
+        sender.SendAdminNoti(message, self.userID)
+        

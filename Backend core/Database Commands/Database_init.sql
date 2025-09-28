@@ -125,6 +125,18 @@ CREATE TABLE IF NOT EXISTS `WarningSetup` (
     )
 );
 
+CREATE TABLE IF NOT EXISTS `Claims` (
+    `ClaimID` int  NOT NULL AUTO_INCREMENT ,
+    `ImageID` int  NOT NULL ,
+    `ClaimantID` int  NOT NULL ,
+    `ListingID` int  NOT NULL ,
+    `Description` VARCHAR(255) NULL ,
+    `ClaimDate` DATE  NOT NULL ,
+    PRIMARY KEY (
+        `ClaimID`
+    )
+);
+
 ALTER TABLE Users AUTO_INCREMENT = 10000;
 
 ALTER TABLE `Users` ADD CONSTRAINT `fk_Users_NotificationPreference` FOREIGN KEY(`NotificationPreference`)
@@ -169,6 +181,15 @@ REFERENCES `Users` (`UserID`);
 ALTER TABLE `ReportLog` ADD CONSTRAINT `fk_ReportLog_RequesterID` FOREIGN KEY(`RequesterID`)
 REFERENCES `Users` (`UserID`);
 
+ALTER TABLE `Claims` ADD CONSTRAINT `fk_Claims_ImageID` FOREIGN KEY(`ImageID`)
+REFERENCES `Image` (`ImageID`);
+
+ALTER TABLE `Claims` ADD CONSTRAINT `fk_Claims_ClaimantID` FOREIGN KEY(`ClaimantID`)
+REFERENCES `Users` (`UserID`);
+
+ALTER TABLE `Claims` ADD CONSTRAINT `fk_Claims_ListingID` FOREIGN KEY(`ListingID`)
+REFERENCES `Listings` (`ListingID`);
+
 ALTER TABLE  `Users` 
 MODIFY COLUMN `DateOfCreation` DATE NOT NULL DEFAULT (NOW()),
 MODIFY COLUMN `LastLoginDate` DATE NULL DEFAULT NULL;
@@ -189,8 +210,12 @@ MODIFY COLUMN `RequestDate` DATE NOT NULL DEFAULT (NOW());
 ALTER TABLE `Image` 
 MODIFY COLUMN `uploadDate` DATE NOT NULL DEFAULT (NOW());
 
-ALTER TABLE `Image` 
-MODIFY COLUMN `uploadDate` DATE NOT NULL DEFAULT (NOW());
+
+-- ALTER TABLE `Image` 
+-- MODIFY COLUMN `uploadDate` DATE NOT NULL DEFAULT (NOW());
+
+ALTER TABLE `Claims` 
+MODIFY COLUMN `ClaimDate` DATE NOT NULL DEFAULT (NOW());
 
 
 INSERT INTO `Action` (`ActionID`, `Description`) 

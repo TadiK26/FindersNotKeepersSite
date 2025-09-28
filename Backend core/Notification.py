@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 class Notification:
     """Handles sending notifications to users."""
     
-    def __init__(self, notificationType: int, listId = None, imageID = None, claimantID = None):
+    def __init__(self, notificationType: int, listId = None, imageID = None, claimantID = None, claimID = None, message = None):
 
 
 
@@ -22,6 +22,8 @@ class Notification:
             self.SendAdminNoti()
         elif notificationType == 5:
             self.SendVerificationReq(imageID, listId, claimantID)
+        elif notificationType == 6:
+            self.sendToAdmin()
 
     @staticmethod
     def get_connection():
@@ -50,12 +52,22 @@ class Notification:
         """Send notification from administrators to user"""
         pass
 
-    def SendVerificationReq(self, ImageID, ListingID, ClaimaintID):
+    def SendVerificationReq(self, ImageID: int, ListingID: int, ClaimaintID: int):
         """Send notification to administrators requesting claim verification"""
 
 
         
         #send_email()
+        pass
+
+    def SendNewListVerification(self, listingID):
+        """Send notification to administrators requesting listing verification"""
+
+        pass
+
+    def sendToAdmin(self, message: str, adminID: int):
+        """Sends a notification to an admin"""
+
         pass
 
     def send_email(self, recipient_email, subject, body):
