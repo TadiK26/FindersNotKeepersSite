@@ -59,19 +59,6 @@ const initialiseDatabase = async () => {
       )
     `);
 
-    // Emails table
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS emails (
-        id SERIAL PRIMARY KEY,
-        to_email VARCHAR(255) NOT NULL,
-        from_email VARCHAR(255) NOT NULL,
-        subject VARCHAR(500) NOT NULL,
-        body TEXT NOT NULL,
-        status VARCHAR(50) DEFAULT 'sent',
-        sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
     // Verification requests table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS verifications (
@@ -85,6 +72,21 @@ const initialiseDatabase = async () => {
       )
     `);
 
+    // Chats table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS chats (
+        id SERIAL PRIMARY KEY,
+        room_id VARCHAR(255) NOT NULL,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        message TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    // Add index for better performance
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_chats_room_id ON chats(room_id);
+      CREATE INDEX IF NOT EXISTS idx_chats_created_at ON chats(created_at);
+    `);
     console.log('Database tables initialized successfully');
   } catch (error) {
     console.error('Error initializing database:', error);
