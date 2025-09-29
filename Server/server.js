@@ -5,7 +5,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 require('dotenv').config();
 
-const { initializeDatabase } = require('./config/database');
+const { initialiseDatabase } = require('./config/database');
 const { auth } = require('./middleware/auth');
 const Chat = require('./models/Chat');
 
@@ -156,7 +156,7 @@ const PORT = process.env.PORT || 5000;
 // Initialize database and start server
 const startServer = async () => {
   try {
-    await initializeDatabase();
+    await initialiseDatabase();
     
     server.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
