@@ -4,6 +4,7 @@ import logo from '/logo.svg'
 import profileIcon from '../assets/profile_icon.svg'
 import notificationsIcon from '../assets/notifications_icon.svg'
 import settingsIcon from '../assets/settings_icon.svg'
+import messageIcon from '../assets/message.svg'
 import './Listings.css'
 
 import laptopbag from '../photos/blacklaptop.jpg'
@@ -93,6 +94,10 @@ export default function Listings() {
           <Link to="/settings" className="rail-icon" aria-label="Settings">
             <img src={settingsIcon} alt="Settings" />
           </Link>
+          <Link to="/settings" className="rail-icon" aria-label="Settings">
+            <img src={settingsIcon} alt="Settings" />
+          </Link>
+   
         </aside>
 
         {/* Back button */}
@@ -211,6 +216,9 @@ export default function Listings() {
         <Link to="/settings" className="rail-icon" aria-label="Settings">
           <img src={settingsIcon} alt="Settings" />
         </Link>
+        <Link to="/messages" className="rail-icon" aria-label="Messages">
+          <img src={messageIcon} alt="Messages" />
+        </Link>
       </aside>
 
       {/* Page title + bar */}
@@ -230,7 +238,7 @@ export default function Listings() {
         </div>
 
         <nav className="reportbut">
-          <Link to="/report-lost">REPORT</Link>
+          <Link to="/create">REPORT</Link>
         </nav>
       </div>
 

@@ -1,7 +1,9 @@
 from User import User
 from Session import Session
-from datetime import date
 from Notification import Notification
+
+
+
 import mysql.connector
 import os
 from dotenv import load_dotenv
@@ -98,13 +100,16 @@ def SessionTest_3():
 
     print("\n")
 
+#Comprehensive Tests for Session.py
 def SessionTests():
     print("Unit Tests for Session.py: \n------------------------")
-    #SessionTest_1()
+    SessionTest_1()
     SessionTest_2()
-    #SessionTest_3()
+    SessionTest_3()
 
-#User can update their profile
+
+
+#Tests that user can update their profile
 def UserTest_1():
     print("User Test 1: Update Profile")
 
@@ -199,7 +204,8 @@ def UserTests():
     UserTest_2()
     UserTest_3()
 
-#Tests that the backend can open the SMTP email server and send an email to a specified email address
+
+#Tests that the backend can open the SMTP email server can send an email to a specified email address
 def NotificationTest_1():
     noti = Notification(5)
 
@@ -211,11 +217,8 @@ def NotificationTest_1():
     noti.send_email(recipient, subject, body)
 
 
+
 ##########Tests##########
 
 SessionTests()
 UserTests()
-
-#NotificationTest_1()
-
-#SessionTest_1()

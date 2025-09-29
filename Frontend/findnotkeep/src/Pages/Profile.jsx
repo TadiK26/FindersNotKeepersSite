@@ -110,17 +110,14 @@ export default function Profile() {
         </aside>
       </section>
 
-      {/* My Listings box */}
-      <section className="my-listings">
-        <h2>My Listings</h2>
-        <div className="my-links">
-          <Link to="/listings?filter=lost">Lost Items</Link>
-          <span className="sep">|</span>
-          <Link to="/listings?filter=returned">Returned Items</Link>
-          <span className="sep">|</span>
-          <Link to="/listings?filter=found">Found Items</Link>
-        </div>
-      </section>
+     <Link to="/mylistings" className="my-listings">
+      <h2>My Listings</h2>
+      <p className="my-listings-text">
+        Lost Items | Returned Items | Found Items
+      </p>
+    </Link>
+
+
     </main>
   );
 }

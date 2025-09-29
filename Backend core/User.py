@@ -73,6 +73,17 @@ class User:
             return False
 
         conn.commit()
+
+        audit_query = """
+                INSERT INTO AuditLog (UserID, ActionID, IPAddress, UserAgent, SessionID)
+                VALUES (%s, %s, %s, %s, %s)
+            """
+
+        values = (self.UserID, 8, self.sessionIP, "Unknown", self.sessionID)
+
+        cursor.execute(audit_query, values)
+        conn.commit()
+
         cursor.close()
         conn.close()
 
@@ -129,6 +140,17 @@ class User:
         Noti = Notification(3,listingID)
         Noti.SendNewListVerification(listingID)
 
+
+        audit_query = """
+                INSERT INTO AuditLog (UserID, ActionID, IPAddress, UserAgent, SessionID)
+                VALUES (%s, %s, %s, %s, %s)
+            """
+
+        values = (self.UserID, 3, self.sessionIP, "Unknown", self.sessionID)
+
+        cursor.execute(audit_query, values)
+        conn.commit()
+
         cursor.close()
         conn.close()
 
@@ -158,6 +180,17 @@ class User:
         cursor.execute(query, values)
 
         conn.commit()
+
+        audit_query = """
+                INSERT INTO AuditLog (UserID, ActionID, IPAddress, UserAgent, SessionID)
+                VALUES (%s, %s, %s, %s, %s)
+            """
+
+        values = (self.UserID, 5, self.sessionIP, "Unknown", self.sessionID)
+
+        cursor.execute(audit_query, values)
+        conn.commit()
+
         cursor.close()
         conn.close()
 
@@ -209,21 +242,19 @@ class User:
             cursor.execute(query, values)
             conn.commit()
         
-        #Add check for a null phone number if number is missing return a listing failed
-        if Contact:
-            
-            query = """
-            UPDATE Listings SET
-                ContactInfo=%s
-            WHERE ListingID=%s
-            """
-
-            values = (self.PhoneNumber, listingID)
-            cursor.execute(query, values)
-            conn.commit()
 
         #Send notification when admin approves listing
         #Noti = Notification(3,listingID)
+
+        audit_query = """
+                INSERT INTO AuditLog (UserID, ActionID, IPAddress, UserAgent, SessionID)
+                VALUES (%s, %s, %s, %s, %s)
+            """
+
+        values = (self.UserID, 4, self.sessionIP, "Unknown", self.sessionID)
+
+        cursor.execute(audit_query, values)
+        conn.commit()
 
         cursor.close()
         conn.close()
@@ -253,6 +284,17 @@ class User:
         cursor.execute(query, values)
 
         conn.commit()
+
+        audit_query = """
+                INSERT INTO AuditLog (UserID, ActionID, IPAddress, UserAgent, SessionID)
+                VALUES (%s, %s, %s, %s, %s)
+            """
+
+        values = (self.UserID, 4, self.sessionIP, "Unknown", self.sessionID)
+
+        cursor.execute(audit_query, values)
+        conn.commit()
+
         cursor.close()
         conn.close()
 
@@ -352,6 +394,9 @@ class User:
 
         Noti = Notification(5, claimID=claimID)
 
+        cursor.close()
+        conn.close()
+
         return 0
 
     def ContactUser(self, participant2ID):
@@ -411,7 +456,7 @@ class User:
             with open(filepath, "r") as file:
                 content = self.decrypt(user_1, user_2, f"{messageID}.txt")
             
-            return content
+            return messageID, content
 
         else:
             return None
@@ -454,14 +499,34 @@ class User:
             out = f"Message thread between {party1} and {party2}.\n"
             json.dump(out, f, indent=2)
     
-    def SendMessage(self, messageID: int, recipient: int, contents: str):
+    def SendMessage(self, messageID: int, recipient:int, contents: str):
         """Send a message to another user.
             Args: 
                 messageID(int):     Unique ID for the interaction between the two users
+                contents(str):      The message being sent
         """
         
         conn = self.get_connection()
         cursor = conn.cursor()
+
+
+        self.encrypt(self.UserID, recipient, contents, f"{messageID}.json")
+
+
+        audit_query = """
+                INSERT INTO AuditLog (UserID, ActionID, IPAddress, UserAgent, SessionID)
+                VALUES (%s, %s, %s, %s, %s)
+            """
+
+        values = (self.UserID, 6, self.sessionIP, "Unknown", self.sessionID)
+
+        noti = Notification()
+
+        cursor.execute(audit_query, values)
+        conn.commit()
+
+        cursor.close()
+        conn.close()
 
     def generateKey(self, id1: int, id2: int):
 
