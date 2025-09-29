@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}FindersNotKeepers - Search Items{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-options {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .search-option-btn {
+        flex: 1;
+        padding: 1rem;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        background: white;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.3s;
+    }
+    
+    .search-option-btn.active {
+        border-color: var(--primary);
+        background: #f0f7ff;
+    }
+    
+    .search-option-btn:hover {
+        border-color: var(--primary);
+    }
+    
+    .location-options {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        margin-top: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content search-page">
+    <!-- Search Header -->
+    <div class="search-container">
+        <h1>Search Lost & Found Items</h1>
+        <p>Find items using keywords, categories, location, and advanced filters.</p>
+        
+        <!-- Search Options -->
+        <div class="search-options">
+            <div class="search-option-btn active" onclick="setSearchType('basic')">
+                <strong>🔍 Basic Search</strong>
+                <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">Quick keyword and category search</div>
+            </div>
+            <div class="search-option-btn" onclick="setSearchType('advanced')">
+                <strong>🎯 Advanced Search</strong>
+                <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">Location radius and detailed filters</div>
+            </div>
+        </div>
+        
+        <!-- Search Form -->
+        <form id="search-form">
+            <!-- Basic Search Fields -->
+            <div id="basic-search-fields">
+                <div class="search-filters">
+                    <div class="filter-group">
+                        <label for="keywords">Keywords</label>
+                        <input type="text" class="form-control" id="keywords" placeholder="Search by item name, description, features...">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="category">Category</label>
+                        <select class="form-control" id="category">
+                            <option value="">All Categories</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="documents">Documents</option>
+                            <option value="accessories">Accessories</option>
+                            <option value="books">Books</option>
+                            <option value="jewelry">Jewelry</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="type">Item Type</label>
+                        <select class="form-control" id="type">
+                            <option value="">All Types</option>
+                            <option value="lost">Lost Items</option>
+                            <option value="found">Found Items</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="location">Location</label>
+                        <input type="text" class="form-control" id="location" placeholder="e.g., Library, Student Center, Engineering Building">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Search Items</button>
+            </div>
+            
+            <!-- Advanced Search Fields -->
+            <div id="advanced-search-fields" style="display: none;">
+                <div class="search-filters">
+                    <div class="filter-group">
+                        <label for="advanced-keywords">Keywords</label>
+                        <input type="text" class="form-control" id="advanced-keywords" placeholder="Search by item name, description, features...">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="advanced-category">Category</label>
+                        <select class="form-control" id="advanced-category">
+                            <option value="">All Categories</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="documents">Documents</option>
+                            <option value="accessories">Accessories</option>
+                            <option value="books">Books</option>
+                            <option value="jewelry">Jewelry</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="advanced-type">Item Type</label>
+                        <select class="form-control" id="advanced-type">
+                            <option value="">All Types</option>
+                            <option value="lost">Lost Items</option>
+                            <option value="found">Found Items</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="search-radius">Search Radius (km)</label>
+                        <select class="form-control" id="search-radius">
+                            <option value="1">1 km</option>
+                            <option value="2">2 km</option>
+                            <option value="5" selected>5 km</option>
+                            <option value="10">10 km</option>
+                            <option value="25">25 km</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Location Reference</label>
+                    <div class="location-options">
+                        <input type="text" class="form-control" id="advanced-location" placeholder="Enter address or place name">
+                        <button type="button" class="btn btn-outline" id="use-location-btn">Use My Location</button>
+                    </div>
+                    <div style="margin-top: 0.5rem;">
+                        <input type="checkbox" id="use-current-location">
+                        <label for="use-current-location" style="display: inline; margin-left: 0.5rem;">Use my current location</label>
+                    </div>
+                </div>
+                
+                <!-- Map Container -->
+                <div class="map-container" id="map-container">
+                    <!-- Map will be loaded here -->
+                </div>
+                
+                <div class="search-actions">
+                    <button type="button" class="btn btn-primary" id="advanced-search-btn">Advanced Search</button>
+                    <button type="button" class="btn btn-secondary" id="reset-filters-btn">Reset Filters</button>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Search Settings (for logged-in users) -->
+        <div class="user-only">
+            <div class="search-settings">
+                <h4>Search Settings</h4>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <button type="button" class="btn btn-outline" id="save-settings-btn">Save These Settings</button>
+                    <button type="button" class="btn btn-outline" id="load-settings-btn">Load Saved Settings</button>
+                    <small style="color: #666;">Save your preferred search filters for quick access</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Search Results -->
+    <div class="search-results">
+        <div class="results-header">
+            <h2>Search Results</h2>
+            <div class="results-count" id="results-count">Enter search criteria to find items</div>
+        </div>
+        
+        <div class="results-grid" id="results-container">
+            <div class="empty-state">
+                <h3>Ready to Search</h3>
+                <p>Use the search form above to find lost and found items.</p>
+                <p><small>Try searching for "laptop", "phone", "jacket", or browse by category.</small></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>
+<script>
+    let currentSearchType = 'basic';
+    
+    function setSearchType(type) {
+        currentSearchType = type;
+        
+        // Update active button
+        document.querySelectorAll('.search-option-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        
+        // Show/hide appropriate fields
+        if (type === 'basic') {
+            document.getElementById('basic-search-fields').style.display = 'block';
+            document.getElementById('advanced-search-fields').style.display = 'none';
+        } else {
+            document.getElementById('basic-search-fields').style.display = 'none';
+            document.getElementById('advanced-search-fields').style.display = 'block';
+        }
+    }
+    
+    // Initialize search type
+    document.addEventListener('DOMContentLoaded', function() {
+        setSearchType('basic');
+    });
+</script>
+{% endblock %}

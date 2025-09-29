@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}FindersNotKeepers - Login{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <h1>Welcome Back</h1>
+        <p>Sign in to your FindersNotKeepers account</p>
+    </div>
+    
+    <!-- Login Form -->
+    <form id="login-form" class="login-form">
+        <div class="form-group">
+            <label for="username">Username or Email</label>
+            <input type="text" class="form-control" id="username" placeholder="Enter your username or email" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" class="form-control" id="password" placeholder="Enter your password" required>
+        </div>
+        
+        <div class="form-group" style="text-align: right;">
+            <a href="#" style="color: var(--primary); text-decoration: none;">Forgot password?</a>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+    </form>
+    
+    <!-- Demo Accounts -->
+    <div style="margin: 2rem 0; padding: 1rem; background: #f8f9fa; border-radius: 4px;">
+        <h4 style="margin-bottom: 1rem;">Demo Accounts</h4>
+        <div style="font-size: 0.9rem;">
+            <p><strong>Regular User:</strong> user1 / pass123</p>
+            <p><strong>Another User:</strong> user2 / pass123</p>
+            <p><strong>Admin:</strong> admin1 / admin123</p>
+        </div>
+    </div>
+    
+    <!-- Alternative Sign-in Options -->
+    <div style="text-align: center; margin: 2rem 0;">
+        <div style="display: flex; align-items: center; margin: 1rem 0;">
+            <div style="flex: 1; height: 1px; background: #ddd;"></div>
+            <div style="padding: 0 1rem; color: #666;">or continue with</div>
+            <div style="flex: 1; height: 1px; background: #ddd;"></div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem;">
+            <button type="button" class="btn btn-outline" style="flex: 1;">
+                <span>Google</span>
+            </button>
+            <button type="button" class="btn btn-outline" style="flex: 1;">
+                <span>Apple</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Sign Up Link -->
+    <div style="text-align: center; margin-top: 2rem;">
+        <p>Don't have an account? <a href="#" style="color: var(--primary); text-decoration: none;">Sign up here</a></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Store user data
+                sessionStorage.setItem('currentUser', JSON.stringify(data.user));
+                
+                // Redirect to previous page or homepage
+                const redirectUrl = sessionStorage.getItem('redirectAfterLogin') || '/';
+                sessionStorage.removeItem('redirectAfterLogin');
+                window.location.href = redirectUrl;
+            } else {
+                alert('Login failed: ' + (data.error || 'Invalid credentials'));
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            alert('Login failed. Please try again.');
+        }
+    });
+    
+    // Auto-fill demo accounts for convenience
+    document.addEventListener('DOMContentLoaded', function() {
+        const demoAccounts = [
+            { username: 'user1', password: 'pass123' },
+            { username: 'user2', password: 'pass123' },
+            { username: 'admin1', password: 'admin123' }
+        ];
+        
+        // Add quick fill buttons for demo
+        const demoContainer = document.querySelector('.login-container');
+        const quickFillDiv = document.createElement('div');
+        quickFillDiv.innerHTML = `
+            <div style="margin-top: 1rem; text-align: center;">
+                <small style="color: #666;">Quick fill:</small>
+                ${demoAccounts.map(acc => 
+                    `<button type="button" class="btn btn-outline" style="margin: 0.25rem; padding: 0.25rem 0.5rem; font-size: 0.8rem;" 
+                     onclick="fillDemoCredentials('${acc.username}', '${acc.password}')">
+                        ${acc.username}
+                    </button>`
+                ).join('')}
+            </div>
+        `;
+        demoContainer.appendChild(quickFillDiv);
+    });
+    
+    function fillDemoCredentials(username, password) {
+        document.getElementById('username').value = username;
+        document.getElementById('password').value = password;
+    }
+</script>
+{% endblock %}

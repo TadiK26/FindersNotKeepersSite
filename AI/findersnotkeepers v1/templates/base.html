@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FindersNotKeepers - Lost & Found Platform{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% if user %}user-logged-in{% else %}public-user{% endif %}">
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <a href="{{ url_for('index') }}" style="color: white; text-decoration: none;">
+                    FindersNotKeepers
+                </a>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}">Home</a></li>
+                    <li><a href="{{ url_for('search_page') }}" class="{% if request.endpoint == 'search_page' %}active{% endif %}">Search</a></li>
+                    <li><a href="#">How It Works</a></li>
+
+                    {% if user %}
+                        <!-- User is logged in -->
+                        <li class="user-only">
+                            <div class="notification-bell" id="notification-bell">
+                                🔔
+                                <span class="notification-badge" id="notification-badge" style="display: none;">0</span>
+                            </div>
+                        </li>
+                        <li class="user-only">
+                            <span id="user-info">Welcome, {{ user.name }}</span>
+                        </li>
+                        <li class="user-only">
+                            <a href="#" id="logout-btn">Logout</a>
+                        </li>
+                    {% else %}
+                        <!-- Public user -->
+                        <li class="public-only">
+                            <a href="{{ url_for('login_page') }}" id="login-btn">Login</a>
+                        </li>
+                        <li class="public-only">
+                            <a href="{{ url_for('login_page') }}">Sign Up</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Notification Panel -->
+        <div class="notification-panel" id="notification-panel">
+            <div class="notification-panel-header">
+                <h4>Notifications</h4>
+                <button id="close-notification-panel">×</button>
+            </div>
+            <div class="notification-panel-content">
+                <div class="empty-state">Loading notifications...</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- FAQ Button -->
+    <div class="faq-btn" id="faq-button">
+        <i>FAQ</i>
+    </div>
+
+    <!-- Chatbot Container -->
+    <div class="chatbot-container" id="chatbot">
+        <div class="chatbot-header">
+            <h3>FindersNotKeepers Assistant</h3>
+            <div>
+                <button id="minimize-chat" style="background: none; border: none; color: white; margin-right: 10px; cursor: pointer;">−</button>
+                <button id="close-chat" style="background: none; border: none; color: white; cursor: pointer;">×</button>
+            </div>
+        </div>
+        <div class="chatbot-messages" id="chat-messages">
+            <div class="message bot-message">
+                Hello! I'm the FindersNotKeepers assistant. How can I help you today?
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="user-input" placeholder="Ask a question about lost and found...">
+            <button class="chatbot-btn" id="send-message">→</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-section">
+                <h3>FindersNotKeepers</h3>
+                <p>Reuniting lost items with their owners through AI-powered matching.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('index') }}">Home</a></li>
+                    <li><a href="{{ url_for('search_page') }}">Search Items</a></li>
+                    <li><a href="#">Report Lost Item</a></li>
+                    <li><a href="#">Report Found Item</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Community Guidelines</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <ul>
+                    <li><a href="#">Terms and Conditions</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="container footer-bottom">
+            <p>&copy; 2025 FindersNotKeepers. University of Pretoria - EPE 321 Software Engineering Project. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Files -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/matching.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
