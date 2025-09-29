@@ -13,6 +13,7 @@ import CreateListing from './Pages/CreateListing.jsx'
 import Notifications from './Pages/Notifications.jsx'
 import Messages from './Pages/Messages.jsx'
 import ContactFromListing from './Pages/ContactFromListing.jsx'
+import MyArchive from './Pages/MyArchive.jsx'
 
 
 export default function Web() {
@@ -32,12 +33,14 @@ export default function Web() {
       <Route path="/settings" element={<Settings />} />
 
       <Route path="/profile" element={<Profile />} />
-      <Route path="/profile/listings" element={<ProfileListings />} />
+      <Route path="/mylistings" element={<MyArchive />} /> 
 
       <Route path="/create" element={<CreateListing />} />
 
       <Route path="/notifications" element={<Notifications />} />
-      <Route path="/messages/:threadId" element={<Messages />} />
+      <Route path="/messages" element={<Messages />} />
+      <Route path="/messages/:id" element={<Messages />} />
+
 
       <Route path="/contact/:listingId" element={<ContactFromListing />} />
 

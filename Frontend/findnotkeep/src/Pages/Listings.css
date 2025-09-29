@@ -260,3 +260,31 @@ ALLOWS PAGE TO SCROLL
   font-weight: 700;
 }
 .back-btn:hover{ background: #f5f5f5; }
+
+/*==============================================================*/
+/* NOTIFICATION & MESSAGE ICON BUTTONS */
+/*==============================================================*/
+.notif-btn,
+.msg-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;     /* size of the emoji or svg icon */
+  cursor: pointer;
+  margin-left: 0.75rem;  /* spacing between buttons */
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.notif-btn:hover,
+.msg-btn:hover {
+  transform: scale(1.15);
+  opacity: 0.8;
+}
+
+/* make sure topcard aligns all items properly */
+.topcard {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
