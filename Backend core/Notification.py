@@ -8,92 +8,171 @@ from dotenv import load_dotenv
 class Notification:
     """Handles sending notifications to users."""
     
-    def __init__(self, notificationType: int, listId = None, imageID = None, claimantID = None, claimID = None, message = None):
-
-
-
-        if notificationType == 1:
-            self.SendClaimNoti()
-        elif notificationType == 2:
-            self.SendMatchNoti()
-        elif notificationType == 3:
-            self.SendNewListingNoti(listId)
-        elif notificationType == 4:
-            self.SendAdminNoti()
-        elif notificationType == 5:
-            self.SendVerificationReq(imageID, listId, claimantID)
-        elif notificationType == 6:
-            self.sendToAdmin()
-
-    @staticmethod
-    def get_connection():
-        load_dotenv()
-
-        return mysql.connector.connect(
-            host=os.getenv("DB_HOST"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            database="findersnotkeepers"
-        )
-    
     def SendClaimNoti(self):
-        """Send notification when someone claims an item."""
-        pass
-    
+        """Notify the owner of a listing when someone claims their item."""
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor(dictionary=True)
+
+            cursor.execute("""
+                SELECT u.Email, l.ItemTitle
+                FROM Claims c
+                JOIN Listings l ON c.ListingID = l.ListingID
+                JOIN Users u ON l.UserID = u.UserID
+                WHERE c.ClaimID = %s
+            """, (self.claimID,))
+            record = cursor.fetchone()
+
+            if record:
+                email = record['Email']
+                title = record['ItemTitle']
+                subject = "New Claim on Your Listing"
+                body = f"Someone has claimed your item: {title}. Please log in to review the claim."
+                self._send_if_allowed(email, subject, body, [2, 5, 6, 7])
+            
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            print(f"Error in SendClaimNoti: {e}")
+
+
     def SendMatchNoti(self):
-        """Send notification when a potential match is found."""
-        pass
-    
+        """Notify the claimant if a potential match is found."""
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor(dictionary=True)
+
+            cursor.execute("""
+                SELECT u.Email
+                FROM Claims c
+                JOIN Users u ON c.ClaimantID = u.UserID
+                WHERE c.ClaimID = %s
+            """, (self.claimID,))
+            record = cursor.fetchone()
+
+            if record:
+                subject = "Potential Match Found"
+                body = "We found a potential match for your claim. Please log in to check the details."
+                self._send_if_allowed(record['Email'], subject, body, [2])  # all-email only
+            
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            print(f"Error in SendMatchNoti: {e}")
+
+
     def SendNewListingNoti(self, listID: int):
-        """Send notification about new item listings."""
-        pass
-    
+        """Notify all users (who want listing notifications) when a new item is posted."""
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor(dictionary=True)
+
+            cursor.execute("SELECT ItemTitle FROM Listings WHERE ListingID = %s", (listID,))
+            listing = cursor.fetchone()
+
+            if listing:
+                title = listing['ItemTitle']
+
+                cursor.execute("SELECT Email, NotificationPreference FROM Users")
+                for row in cursor.fetchall():
+                    self._send_if_allowed(row['Email'],
+                        "New Listing Added",
+                        f"A new item has been listed: {title}.",
+                        [2, 3, 7, 8]
+                    )
+
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            print(f"Error in SendNewListingNoti: {e}")
+
+
     def SendAdminNoti(self):
-        """Send notification from administrators to user"""
-        pass
+        """Send a broadcast admin message to all users."""
+        if not self.message:
+            return
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor(dictionary=True)
+
+            cursor.execute("SELECT Email FROM Users")
+            for row in cursor.fetchall():
+                self.send_email(row['Email'], "Admin Notification", self.message)
+
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            print(f"Error in SendAdminNoti: {e}")
+
 
     def SendVerificationReq(self, ImageID: int, ListingID: int, ClaimaintID: int):
-        """Send notification to administrators requesting claim verification"""
+        """Send claim verification request to admins."""
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor(dictionary=True)
+
+            cursor.execute("SELECT Email FROM Users WHERE Role = 'admin'")
+            for row in cursor.fetchall():
+                subject = "Claim Verification Needed"
+                body = (f"A claim requires verification.\n"
+                        f"ListingID: {ListingID}, ClaimantID: {ClaimaintID}, ImageID: {ImageID}")
+                self.send_email(row['Email'], subject, body)
+
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            print(f"Error in SendVerificationReq: {e}")
 
 
-        
-        #send_email()
-        pass
+    def sendMessageNoti(self):
+        """Notify a user they received a new message."""
+        if not self.message:
+            return
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor(dictionary=True)
 
-    def SendNewListVerification(self, listingID):
-        """Send notification to administrators requesting listing verification"""
+            cursor.execute("SELECT Email, NotificationPreference FROM Users WHERE UserID = %s", (self.claimantID,))
+            record = cursor.fetchone()
 
-        pass
+            if record:
+                self._send_if_allowed(record['Email'], "New Message", self.message, [2, 4, 6, 8])
+
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            print(f"Error in sendMessageNoti: {e}")
+
+
+    def SendNewListVerification(self, listingID: int):
+        """Send new listing verification request to admins."""
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor(dictionary=True)
+
+            cursor.execute("SELECT Email FROM Users WHERE Role = 'admin'")
+            for row in cursor.fetchall():
+                self.send_email(row['Email'], "Listing Verification Request",
+                                f"Listing {listingID} requires verification.")
+
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            print(f"Error in SendNewListVerification: {e}")
+
 
     def sendToAdmin(self, message: str, adminID: int):
-        """Sends a notification to an admin"""
-
-        pass
-
-    def send_email(self, recipient_email, subject, body):
-        load_dotenv()
-
-        SMTP_SERVER = "smtp.gmail.com"
-        SMTP_PORT = 587
-        EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
-        EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
-
-        print(EMAIL_ADDRESS)
-        print(EMAIL_PASSWORD)
-
+        """Send direct message to a specific admin."""
         try:
-            msg = MIMEMultipart()
-            msg['From'] = EMAIL_ADDRESS
-            msg['To'] = recipient_email
-            msg['Subject'] = subject
-            
-            msg.attach(MIMEText(body, 'plain'))
+            conn = self.get_connection()
+            cursor = conn.cursor(dictionary=True)
 
-            with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-                server.starttls()
-                server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-                server.sendmail(EMAIL_ADDRESS, recipient_email, msg.as_string())
+            cursor.execute("SELECT Email FROM Users WHERE UserID = %s AND Role = 'admin'", (adminID,))
+            record = cursor.fetchone()
+            if record:
+                self.send_email(record['Email'], "User Message", message)
 
-            print("Email send successfully")
+            cursor.close()
+            conn.close()
         except Exception as e:
-            print(f"Error sending email: {e}")
+            print(f"Error in sendToAdmin: {e}")

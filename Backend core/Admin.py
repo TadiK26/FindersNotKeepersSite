@@ -13,10 +13,6 @@ class Admin(User):
                  NotificationPreference, DateOfCreation,
                  CreationMethod, LastLoginDate, ProfileImageID)
     
-    def ReviewProof(self):
-        """Review proof of ownership for a listing ."""
-        
-        pass
     
     def ApproveProof(self,listingID):
         """Approve proof of ownership for an item."""
