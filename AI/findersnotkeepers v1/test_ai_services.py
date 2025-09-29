@@ -1,98 +1,243 @@
+"""
+Unit tests for FindersNotKeepers application
+Tests all major functions and components
+"""
+
 import unittest
-from ai_services import calculate_similarity, preprocess_text, calculate_location_similarity, enhance_with_brand_recognition
+import sys
+import os
+
+# Add the current directory to Python path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from app import app, initialize_sample_data
+from ai_services import calculate_semantic_similarity, calculate_basic_similarity, generate_chatbot_response
+
+
+class TestFindersNotKeepers(unittest.TestCase):
+    """Test cases for FindersNotKeepers application"""
+
+    def setUp(self):
+        """Set up test client and initialize sample data"""
+        self.app = app.test_client()
+        self.app.testing = True
+
+        # Initialize sample data for testing
+        with app.app_context():
+            initialize_sample_data()
+
+    def test_homepage_loading(self):
+        """Test that homepage loads successfully"""
+        response = self.app.get('/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_search_page_loading(self):
+        """Test that search page loads successfully"""
+        response = self.app.get('/search')
+        self.assertEqual(response.status_code, 200)
+
+    def test_login_page_loading(self):
+        """Test that login page loads successfully"""
+        response = self.app.get('/login')
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_listings(self):
+        """Test retrieving listings via API"""
+        response = self.app.get('/api/listings')
+        self.assertEqual(response.status_code, 200)
+
+        data = response.get_json()
+        self.assertIsInstance(data, list)
+        self.assertGreater(len(data), 0)
+
+    def test_get_listings_with_filters(self):
+        """Test retrieving listings with search filters"""
+        # Test keyword search
+        response = self.app.get('/api/listings?q=MacBook')
+        self.assertEqual(response.status_code, 200)
+
+        data = response.get_json()
+        self.assertIsInstance(data, list)
+
+        # Test category filter
+        response = self.app.get('/api/listings?category=electronics')
+        self.assertEqual(response.status_code, 200)
+
+        data = response.get_json()
+        self.assertIsInstance(data, list)
+
+    def test_semantic_similarity_calculation(self):
+        """Test semantic similarity calculation between listings"""
+        # Create test listings
+        listing1 = {
+            'title': 'Black laptop bag',
+            'description': 'Black laptop bag with red zippers',
+            'category': 'accessories'
+        }
+
+        listing2 = {
+            'title': 'Dark laptop case',
+            'description': 'Dark colored laptop bag with zippers',
+            'category': 'accessories'
+        }
+
+        listing3 = {
+            'title': 'Water bottle',
+            'description': 'Silver water bottle with stickers',
+            'category': 'other'
+        }
+
+        # Calculate similarities
+        similar_score = calculate_semantic_similarity(listing1, listing2)
+        different_score = calculate_semantic_similarity(listing1, listing3)
+
+        # Similar items should have higher similarity score
+        self.assertGreater(similar_score, different_score)
+
+        # Scores should be between 0 and 1
+        self.assertGreaterEqual(similar_score, 0)
+        self.assertLessEqual(similar_score, 1)
+        self.assertGreaterEqual(different_score, 0)
+        self.assertLessEqual(different_score, 1)
+
+    def test_basic_similarity_calculation(self):
+        """Test basic similarity calculation fallback"""
+        listing1 = {
+            'title': 'test item one',
+            'description': 'this is a test description'
+        }
+
+        listing2 = {
+            'title': 'test item two',
+            'description': 'this is another test description'
+        }
+
+        score = calculate_basic_similarity(listing1, listing2)
+
+        # Should return a valid similarity score
+        self.assertGreaterEqual(score, 0)
+        self.assertLessEqual(score, 1)
+
+    def test_chatbot_response_generation(self):
+        """Test chatbot response generation"""
+        # Test greeting
+        response, answered = generate_chatbot_response('hello')
+        self.assertTrue(answered)
+        self.assertIsInstance(response, str)
+        self.assertGreater(len(response), 0)
+
+        # Test help topic
+        response, answered = generate_chatbot_response('how do I report a lost item')
+        self.assertTrue(answered)
+        self.assertIn('report', response.lower())
+
+        # Test unknown question
+        response, answered = generate_chatbot_response('what is the meaning of life')
+        self.assertIsInstance(response, str)
+        self.assertGreater(len(response), 0)
+
+    def test_advanced_search(self):
+        """Test advanced search functionality"""
+        search_data = {
+            'keywords': 'laptop',
+            'category': 'electronics',
+            'type': 'lost'
+        }
+
+        response = self.app.post('/api/search/advanced', json=search_data)
+        self.assertEqual(response.status_code, 200)
+
+        data = response.get_json()
+        self.assertIsInstance(data, list)
+
+    def test_user_authentication(self):
+        """Test user login functionality"""
+        # Test successful login
+        login_data = {
+            'username': 'user1',
+            'password': 'pass123'
+        }
+
+        response = self.app.post('/api/login', json=login_data)
+        self.assertEqual(response.status_code, 200)
+
+        data = response.get_json()
+        self.assertTrue(data['success'])
+        self.assertIn('user', data)
+
+        # Test failed login
+        bad_login_data = {
+            'username': 'user1',
+            'password': 'wrongpassword'
+        }
+
+        response = self.app.post('/api/login', json=bad_login_data)
+        self.assertEqual(response.status_code, 401)
+
+        data = response.get_json()
+        self.assertFalse(data['success'])
+
+    def test_ai_threshold_update(self):
+        """Test AI similarity threshold update"""
+        # First login
+        self.app.post('/api/login', json={'username': 'user1', 'password': 'pass123'})
+
+        # Update threshold
+        threshold_data = {'threshold': 0.8}
+        response = self.app.post('/api/ai/threshold', json=threshold_data)
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.get_json()
+        self.assertTrue(data['success'])
+        self.assertEqual(data['threshold'], 0.8)
+
+    def test_search_settings_save_load(self):
+        """Test saving and loading search settings"""
+        # Login first
+        self.app.post('/api/login', json={'username': 'user1', 'password': 'pass123'})
+
+        # Save settings
+        settings_data = {
+            'keywords': 'laptop',
+            'category': 'electronics',
+            'radius': 5
+        }
+
+        response = self.app.post('/api/search/settings', json=settings_data)
+        self.assertEqual(response.status_code, 200)
+
+        # Load settings
+        response = self.app.get('/api/search/settings')
+        self.assertEqual(response.status_code, 200)
+
+        data = response.get_json()
+        self.assertEqual(data['keywords'], 'laptop')
+        self.assertEqual(data['category'], 'electronics')
+
 
 class TestAIServices(unittest.TestCase):
-    def setUp(self):
-        """Set up test data"""
-        self.lost_iphone = {
-            "type": "lost", 
-            "category": "electronics", 
-            "title": "iPhone 13 Pro Max", 
-            "description": "Silver iPhone 13 Pro Max with black case. Has a small scratch on the bottom right corner.", 
-            "location": "Main Library, Study Room 3B"
-        }
-        
-        self.found_iphone = {
-            "type": "found", 
-            "category": "electronics", 
-            "title": "Silver iPhone with black case", 
-            "description": "Found an iPhone in the library. It has a black protective case and a small scratch on the bottom.", 
-            "location": "Main Library, near study rooms"
-        }
-        
-        self.found_jacket = {
-            "type": "found", 
-            "category": "clothing", 
-            "title": "Blue jacket in cafeteria", 
-            "description": "Found a blue North Face jacket in the student cafeteria. It seems to be waterproof.", 
-            "location": "Student Center Dining Area"
-        }
+    """Test cases specifically for AI services"""
 
-    def test_preprocess_text_removes_punctuation(self):
-        """Test that preprocess_text removes punctuation and short words"""
-        text = "Hello, world! This is a test with short words: a, an, the."
-        result = preprocess_text(text)
-        expected = ["hello", "world", "this", "test", "with", "short", "words"]
-        self.assertEqual(result, expected)
+    def test_semantic_similarity_edge_cases(self):
+        """Test semantic similarity with edge cases"""
+        # Empty listings
+        empty_listing = {'title': '', 'description': '', 'category': ''}
+        result = calculate_semantic_similarity(empty_listing, empty_listing)
+        self.assertEqual(result, 0.0)
 
-    def test_preprocess_text_empty_string(self):
-        """Test preprocess_text with empty string"""
-        result = preprocess_text("")
-        self.assertEqual(result, [])
+        # Very similar listings
+        listing1 = {'title': 'iphone', 'description': 'black iphone 13', 'category': 'electronics'}
+        listing2 = {'title': 'iphone', 'description': 'black iphone 13', 'category': 'electronics'}
+        result = calculate_semantic_similarity(listing1, listing2)
+        self.assertAlmostEqual(result, 1.0, delta=0.1)
 
-    def test_calculate_similarity_high_match(self):
-        """Test that similar items return high similarity score"""
-        similarity = calculate_similarity(self.lost_iphone, self.found_iphone)
-        self.assertGreaterEqual(similarity, 0.5, "Similar iPhone listings should match highly")
-        
-    def test_calculate_similarity_low_match(self):
-        """Test that dissimilar items return low similarity score"""
-        similarity = calculate_similarity(self.lost_iphone, self.found_jacket)
-        self.assertLess(similarity, 0.3, "Different category items should have low similarity")
+        # Completely different listings
+        listing3 = {'title': 'textbook', 'description': 'math textbook', 'category': 'books'}
+        result = calculate_semantic_similarity(listing1, listing3)
+        self.assertLess(result, 0.5)
 
-    def test_calculate_similarity_same_type_returns_zero(self):
-        """Test that items of same type return 0 similarity"""
-        similar_type_listing = self.found_iphone.copy()
-        similar_type_listing["type"] = "lost"  # Change to same type
-        similarity = calculate_similarity(self.lost_iphone, similar_type_listing)
-        self.assertEqual(similarity, 0, "Items of same type should return 0 similarity")
-
-    def test_location_similarity_same_location(self):
-        """Test location similarity with identical locations"""
-        loc1 = preprocess_text("Main Library, Study Room 3B")
-        loc2 = preprocess_text("Main Library, Study Room 3B")
-        similarity = calculate_location_similarity(loc1, loc2)
-        self.assertGreaterEqual(similarity, 0.8, "Identical locations should have high similarity")
-
-    def test_location_similarity_different_location(self):
-        """Test location similarity with different locations"""
-        loc1 = preprocess_text("Main Library, Study Room 3B")
-        loc2 = preprocess_text("Student Center Cafeteria")
-        similarity = calculate_location_similarity(loc1, loc2)
-        self.assertLess(similarity, 0.3, "Different locations should have low similarity")
-
-    def test_brand_recognition_apple_products(self):
-        """Test brand recognition for Apple products"""
-        # Both mention Apple products
-        listing1 = {"title": "iPhone 13", "description": "Silver iPhone with case"}
-        listing2 = {"title": "Found Apple iPhone", "description": "Black iPhone found in library"}
-        
-        result = enhance_with_brand_recognition(listing1, listing2)
-        self.assertTrue(result, "Both Apple products should trigger brand recognition")
-
-    def test_brand_recognition_different_brands(self):
-        """Test brand recognition with different brands"""
-        listing1 = {"title": "iPhone 13", "description": "Silver iPhone with case"}
-        listing2 = {"title": "Samsung Galaxy", "description": "Black Samsung phone found"}
-        
-        result = enhance_with_brand_recognition(listing1, listing2)
-        self.assertFalse(result, "Different brands should not trigger brand recognition")
-
-    def test_similarity_score_range(self):
-        """Test that similarity score is always between 0 and 1"""
-        similarity = calculate_similarity(self.lost_iphone, self.found_iphone)
-        self.assertGreaterEqual(similarity, 0, "Similarity should not be negative")
-        self.assertLessEqual(similarity, 1, "Similarity should not exceed 1")
 
 if __name__ == '__main__':
-    unittest.main()
+    # Run all tests
+    unittest.main(verbosity=2)
