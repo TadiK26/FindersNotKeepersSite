@@ -40,7 +40,7 @@ const auth = async (req, res, next) => { // verifies that the incoming HTTP requ
 const adminAuth = async (req, res, next) => { // extended authentication to verify that a user has admin role
   try {
     const authHeader = req.header('Authorization');
-    const token = authHeader && authHeader.replace('Bearer', '');
+    const token = authHeader && authHeader.replace('Bearer ', '');
     
     const user = await verifyTokenAndGetUser(token);
 
