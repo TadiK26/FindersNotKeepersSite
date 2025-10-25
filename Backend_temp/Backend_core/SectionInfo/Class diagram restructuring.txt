@@ -1,0 +1,89 @@
+Class diagram restructuring
+
+Class: Session
+	Functions:
+
+		__init__()
+		getConnection()
+		register()
+		logIn()
+		logOut()
+		loadProfile()
+		searchByUsername()
+		searchByEmail()
+		searchByUserID()
+		hash_password()
+		verify_password()
+		
+
+
+
+Class: User 
+	Functions:
+
+		__init__()
+		getConnection()
+		UpdateProfile()
+		MakeListing()
+		RemoveListing()
+		UpdateListing()
+		MarkReturned()
+		MarkClaimed()
+		SendMessage()
+		
+
+
+
+
+Class: Admin (inherits from User)
+	Functions:
+
+		__init__()
+		ReviewProof()
+		ApproveProof()
+		ApproveListing()
+		GetLogs()
+		GenerateReport()
+		
+
+
+
+Class: Notifications
+
+	Functions:
+
+		__init__()
+		getConnection()
+		SendClaimNoti()
+		SendMatchNoti()
+		SendNewListingNoti()
+		SendNotiFromAdmin()
+
+
+Class: itemListings
+
+	Functions:
+		__init__()
+		getConnection()
+		applyFilter()
+		getResults()
+		sortResults()
+
+Class: AuditLog
+	
+	Functions:
+		__init__()
+		getConnection()
+		
+Class: Report 
+	Function:
+		__init__()
+		getConnection()
+		generateReport()
+
+****************
+Might need new database for notifications regarding item/location/interest/category
+Listings database needs new column for extra comments by user or admin
+Need new database for Status of listing (Use enumeration)
+
+- Generates a report for either all activity relating to a user/admin, item, category
