@@ -56,6 +56,8 @@ class User:
         conn = self.get_connection()
         cursor = conn.cursor()
 
+        print(self.UserID)
+
         query = """
             UPDATE Users SET
                 Username=%s, Lastname=%s, Firstnames=%s, Email=%s,
@@ -69,7 +71,8 @@ class User:
                       self.LastLoginDate, self.ProfileImageID, self.UserID)
         try:
             cursor.execute(query, values)
-        except:
+        except Exception as e:
+            print(e)
             return False
 
         conn.commit()
@@ -137,7 +140,7 @@ class User:
             conn.commit()
         
         #Send notification when admin approves listing
-        Noti = Notification(3,listingID)
+        Noti = Notification()
         Noti.SendNewListVerification(listingID)
 
 
@@ -332,7 +335,7 @@ class User:
         cursor.execute(listing_check_query, (listingID,))
         listing_result = cursor.fetchone()
 
-        # Ecit if listing does not exist  
+        # Exit if listing does not exist  
         if not listing_result:
             return 2  
                 
@@ -392,7 +395,7 @@ class User:
         conn.commit()
             
 
-        Noti = Notification(5, claimID=claimID)
+        #Noti = Notification(5, claimID=claimID)
 
         cursor.close()
         conn.close()
@@ -408,14 +411,27 @@ class User:
                 Contents of text thread as well as the threadID
         """
 
-        #Normalizes the interaction between the two users to prevent duplication
-        # 3 contacting 7 is same interaction as 7 contacting 3
+        
         if self.UserID != participant2ID:
-            user_1 = min(self.UserID,participant2ID)
-            user_2 = max(self.UserID,participant2ID)
-
+            
             conn = self.get_connection()
             cursor = conn.cursor()
+
+            query = """ SELECT * FROM Users
+                        WHERE UserID = %s"""
+            
+            values = (participant2ID,)
+
+            cursor.execute(query, values)
+
+            row = cursor.fetchone()
+            if row is None:
+                return None
+
+            #Normalizes the interaction between the two users to prevent duplication
+            # 3 contacting 7 is same interaction as 7 contacting 3
+            user_1 = min(self.UserID,participant2ID)
+            user_2 = max(self.UserID,participant2ID)
 
             cantor_pair = int((user_1**2 + user_1 + 2*user_1*user_2 + 3*user_2 + user_2**2)/2)
 
@@ -433,7 +449,7 @@ class User:
             query = """ SELECT * FROM MessageThread
                         WHERE ThreadID = %s"""
             
-            values = (messageID)
+            values = (messageID,)
 
             cursor.execute(query, values)
 
@@ -443,20 +459,24 @@ class User:
             conn.close()
 
 
+            print(f"Row {row}")
+
             if(row is None):
-                self.CreateMessageThread(user_1, user_2)
+                self.CreateMessageThread(messageID, user_1, user_2)
 
 
             subfolder = "MessageThreads"
-            filename = str(messageID) + "_messages.txt"
+            filename = str(messageID) + ".json"
             filepath = os.path.join(subfolder, filename)
 
             content = None
 
+            print(f"Looking for file {filepath}")
+
             with open(filepath, "r") as file:
-                content = self.decrypt(user_1, user_2, f"{messageID}.txt")
+                content = self.decrypt(user_1, user_2, f"{filepath}")
             
-            return messageID, content
+            return content, messageID, 1
 
         else:
             return None
@@ -484,8 +504,7 @@ class User:
         cursor.execute(query, values) 
         conn.commit()
 
-        cursor.close()
-        conn.close()
+       
 
         #Create the file with the unique primary key as title
         subfolder = "MessageThreads"
@@ -496,8 +515,23 @@ class User:
 
         # Write to the file inside the subfolder
         with open(filepath, "w") as f:
-            out = f"Message thread between {party1} and {party2}.\n"
-            json.dump(out, f, indent=2)
+            #out = f"Message thread between {party1} and {party2}.\n"
+            self.encrypt(party1,party2,"",filepath)
+            #json.dump(out, f, indent=2)
+
+        # Log the action in audit log
+        audit_query = """
+                INSERT INTO AuditLog (UserID, ActionID, IPAddress, UserAgent, SessionID)
+                VALUES (%s, %s, %s, %s, %s)
+            """
+
+        values = (self.UserID, 7, self.sessionIP, "Unknown", self.sessionID)
+
+        cursor.execute(audit_query, values)
+        conn.commit()
+
+        cursor.close()
+        conn.close()
     
     def SendMessage(self, messageID: int, recipient:int, contents: str):
         """Send a message to another user.
@@ -510,7 +544,7 @@ class User:
         cursor = conn.cursor()
 
 
-        self.encrypt(self.UserID, recipient, contents, f"{messageID}.json")
+        self.encrypt(self.UserID, recipient, contents, f"{messageID}.")
 
 
         audit_query = """
@@ -518,7 +552,7 @@ class User:
                 VALUES (%s, %s, %s, %s, %s)
             """
 
-        values = (self.UserID, 6, self.sessionIP, "Unknown", self.sessionID)
+        values = (self.UserID, 7, self.sessionIP, "Unknown", self.sessionID)
 
         noti = Notification()
 
@@ -555,7 +589,7 @@ class User:
             Returns:
                 str: Decrypted contents as a plain text string
         """
-        with open(f"{filename}.json", 'r') as f:
+        with open(f"{filename}", 'r') as f:
             data = json.load(f)
         nonce = base64.b64decode(data["nonce_b64"])
         ct = base64.b64decode(data["ciphertext_b64"])
@@ -581,9 +615,8 @@ class User:
         # Try to decrypt existing file contents if file doesn't exist or can't be decrypted return nothing
         try:
             existing_content = self.decrypt(id1, id2, filename)
-        except (FileNotFoundError, json.JSONDecodeError, Exception):
-            
-            return 0
+        except (FileNotFoundError, json.JSONDecodeError, Exception):  
+            existing_content = ""
         
         # Append new text to the existing content
         combined_content = existing_content + plaintext
@@ -604,7 +637,7 @@ class User:
         }
         
         # Write encrypted content back to the same file
-        with open(f"{filename}.json", 'w') as f:
+        with open(f"{filename}", 'w') as f:
             json.dump(out, f, indent=2)
         
         return 1
