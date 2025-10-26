@@ -3,6 +3,12 @@ import bcrypt
 import os
 from dotenv import load_dotenv
 from User import User
+from Admin import Admin
+import jwt
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your-secret-key'
 
 #Handles user authentication and session management.
 class Session:
@@ -37,6 +43,7 @@ class Session:
 
         #Hash the plain text password with a random salt
         PasswordHash = self.hash_password(PlainTextPassword)
+        print(f"{PlainTextPassword} == {PasswordHash}")
 
         query = """
             INSERT INTO Users 
@@ -81,7 +88,7 @@ class Session:
             conn.close()
             return [2, user_profile]
 
-        if(not self.verify_password(password, row[6])):
+        if(not self.verify_password(password, row[5])):
             self.logOut()
             cursor.close()
             conn.close()
@@ -138,7 +145,10 @@ class Session:
         user_profile = None
 
         if row is not None:
-            user_profile = User()
+            if(str(row['Role']) == "ADMIN"):
+                user_profile = Admin()
+            else:
+                user_profile = User()
 
             user_profile.UserID = int(row['UserID'])
             user_profile.Username = str(row['Username'])
@@ -151,6 +161,9 @@ class Session:
             user_profile.DateOfCreation = str(row['DateOfCreation'])
             user_profile.LastLoginDate = str(row['LastLoginDate'])
             user_profile.ProfileImageID = str(row['ProfileImageID'])
+            user_profile.CreationMethod = str(row['CreationMethod'])
+            user_profile.sessionIP = self.sessionIP
+            user_profile.sessionID = self.sessionID
             
 
         cursor.close() 
