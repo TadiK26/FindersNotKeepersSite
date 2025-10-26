@@ -12,8 +12,7 @@ class Admin(User):
                  Email, PasswordHash, Role,
                  NotificationPreference, DateOfCreation,
                  CreationMethod, LastLoginDate, ProfileImageID)
-    
-    
+        
     def ApproveProof(self,claimID):
         """Approve proof of ownership for an item."""
 

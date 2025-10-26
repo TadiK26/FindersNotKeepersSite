@@ -17,8 +17,7 @@ class Notification:
             user=os.getenv("DB_USER"),
             password=os.getenv("DB_PASSWORD"),
             database="findersnotkeepers"
-        )
-    
+        )  
 
     def SendClaimNoti(self):
         """Notify the owner of a listing when someone claims their item."""
@@ -179,7 +178,7 @@ class Notification:
             conn = self.get_connection()
             cursor = conn.cursor(dictionary=True)
 
-            cursor.execute("SELECT Email FROM Users WHERE UserID = %s AND Role = 'admin'", (adminID,))
+            cursor.execute("SELECT Email FROM Users WHERE UserID = %s AND Role = 'ADMIN'", (adminID,))
             record = cursor.fetchone()
             if record:
                 self.send_email(record['Email'], "User Message", message)
@@ -189,6 +188,7 @@ class Notification:
         except Exception as e:
             print(f"Error in sendToAdmin: {e}")
 
+
     def send_email(self, recipient_email, subject, body):
         load_dotenv()
 
@@ -196,10 +196,11 @@ class Notification:
         SMTP_PORT = 587
         EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
         EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+        DISPLAY_NAME = "Finders Not Keepers"
 
         try:
             msg = MIMEMultipart()
-            msg['From'] = EMAIL_ADDRESS
+            msg['From'] = f"{DISPLAY_NAME} <{EMAIL_ADDRESS}>"
             msg['To'] = recipient_email
             msg['Subject'] = subject
             

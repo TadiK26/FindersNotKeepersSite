@@ -1,14 +1,16 @@
 import mysql.connector
 import os
-import sys
 import json
 import base64
+import hashlib
+import uuid
+from datetime import datetime
+from typing import Optional, Dict, List, Any
 import hashlib
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from dotenv import load_dotenv
-from datetime import date
 from Notification import Notification
 
 #Represents a user in the system
@@ -320,7 +322,7 @@ class User:
                 2 = Error - listing not found 
                 3 = Error - user cannot claim their own listing
                 4 = Error - already claimed by someone else
-                5 = Error - database error
+                5 = Error - database error0
         """
 
         conn = self.get_connection()
@@ -402,173 +404,513 @@ class User:
 
         return 0
 
-    def ContactUser(self, participant2ID):
-        """ Opens the message history between two users
-            Args:
-                self: Class Object
-                participant2ID(int): Id of the other user who the current user wishes to contact
-            Returns:
-                Contents of text thread as well as the threadID
+    # ==================== API Response Standardization ====================  
+    def api_response(self, success: bool, data: Any = None, error: str = None, code: int = 200) -> Dict:
         """
-
+        Standardized API response format for frontend consumption
         
-        if self.UserID != participant2ID:
+        Args:
+            success: Whether the operation succeeded
+            data: Response data (dict, list, etc.)
+            error: Error message if operation failed
+            code: HTTP-like status code
+            
+        Returns:
+            Standardized response dictionary
+        """
+        return {
+            "success": success,
+            "data": data,
+            "error": error,
+            "timestamp": datetime.utcnow().isoformat(),
+            "code": code
+        }
+    
+    # ==================== Input Validation ====================
+    
+    def validate_message_content(self, contents: str) -> Dict:
+        """
+        Validate message content before sending
+        
+        Args:
+            contents: Message text to validate
+            
+        Returns:
+            Validation result with success status and error message if invalid
+        """
+        if not contents:
+            return {"valid": False, "error": "Message cannot be empty"}
+        
+        if not isinstance(contents, str):
+            return {"valid": False, "error": "Message must be a string"}
+        
+        if len(contents.strip()) == 0:
+            return {"valid": False, "error": "Message cannot be empty or whitespace only"}
+        
+        if len(contents) > 10000:
+            return {"valid": False, "error": "Message too long (max 10,000 characters)"}
+        
+        # Check for potentially malicious content
+        if '<script' in contents.lower() or 'javascript:' in contents.lower():
+            return {"valid": False, "error": "Message contains potentially unsafe content"}
+        
+        return {"valid": True}
+    
+    def validate_user_id(self, user_id: int) -> Dict:
+        """
+        Validate user ID
+        
+        Args:
+            user_id: User ID to validate
+            
+        Returns:
+            Validation result
+        """
+        if not isinstance(user_id, int):
+            return {"valid": False, "error": "User ID must be an integer"}
+        
+        if user_id <= 0:
+            return {"valid": False, "error": "User ID must be positive"}
+        
+        return {"valid": True}
+    
+    # ==================== Structured Message Format ====================
+    
+    def create_message_object(self, sender_id: int, content: str, message_id: str = None) -> Dict:
+        """
+        Create a structured message object with metadata
+        
+        Args:
+            sender_id: ID of the user sending the message
+            content: Message content
+            message_id: Optional custom message ID, generates UUID if not provided
+            
+        Returns:
+            Structured message dictionary
+        """
+        return {
+            "message_id": message_id or str(uuid.uuid4()),
+            "sender_id": sender_id,
+            "content": content,
+            "timestamp": datetime.utcnow().isoformat(),
+            "read": False,
+            "edited": False,
+            "deleted": False
+        }
+    
+    def parse_messages_from_content(self, content: str) -> List[Dict]:
+        """
+        Parse JSON content into structured message list
+        
+        Args:
+            content: Decrypted content string
+            
+        Returns:
+            List of message dictionaries
+        """
+        if not content or content.strip() == "":
+            return []
+        
+        try:
+            messages = json.loads(content)
+            if isinstance(messages, list):
+                return messages
+            elif isinstance(messages, dict):
+                return [messages]
+            else:
+                return []
+        except (json.JSONDecodeError, ValueError):
+            # Handle legacy format or corrupted data
+            return []
+    
+    # ==================== Contact User with Structured Data ====================
+    
+    def ContactUser(self, participant2ID: int, limit: int = 50, offset: int = 0) -> Dict:
+        """
+        Opens the message history between two users with pagination
+        
+        Args:
+            participant2ID: ID of the other user
+            limit: Number of messages to return (default 50)
+            offset: Number of messages to skip for pagination (default 0)
+            
+        Returns:
+            Standardized API response with thread data and messages
+        """
+        try:
+            # Validate inputs
+            if self.UserID == participant2ID:
+                return self.api_response(
+                    False, 
+                    error="Cannot message yourself", 
+                    code=400
+                )
+            
+            user_validation = self.validate_user_id(participant2ID)
+            if not user_validation["valid"]:
+                return self.api_response(
+                    False, 
+                    error=user_validation["error"], 
+                    code=400
+                )
+            
+            # Validate pagination parameters
+            if limit <= 0 or limit > 100:
+                return self.api_response(
+                    False, 
+                    error="Limit must be between 1 and 100", 
+                    code=400
+                )
+            
+            if offset < 0:
+                return self.api_response(
+                    False, 
+                    error="Offset must be non-negative", 
+                    code=400
+                )
             
             conn = self.get_connection()
             cursor = conn.cursor()
-
-            query = """ SELECT * FROM Users
-                        WHERE UserID = %s"""
             
-            values = (participant2ID,)
-
-            cursor.execute(query, values)
-
+            # Verify participant2 exists
+            query = "SELECT * FROM Users WHERE UserID = %s"
+            cursor.execute(query, (participant2ID,))
             row = cursor.fetchone()
+            
             if row is None:
-                return None
-
-            #Normalizes the interaction between the two users to prevent duplication
-            # 3 contacting 7 is same interaction as 7 contacting 3
-            user_1 = min(self.UserID,participant2ID)
-            user_2 = max(self.UserID,participant2ID)
-
+                cursor.close()
+                conn.close()
+                return self.api_response(
+                    False, 
+                    error="Recipient user not found", 
+                    code=404
+                )
+            
+            # Normalize interaction between users
+            user_1 = min(self.UserID, participant2ID)
+            user_2 = max(self.UserID, participant2ID)
+            
+            # Generate thread ID using Cantor pairing
             cantor_pair = int((user_1**2 + user_1 + 2*user_1*user_2 + 3*user_2 + user_2**2)/2)
-
             letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             letter_pair = ""
             n = cantor_pair
-
             for i in range(4):
                 letter_pair = letters[n % 26] + letter_pair
                 n //= 26
-
             messageID = f"{letter_pair}_{cantor_pair}"
-            print(messageID)
-
-            query = """ SELECT * FROM MessageThread
-                        WHERE ThreadID = %s"""
             
-            values = (messageID,)
-
-            cursor.execute(query, values)
-
+            # Check if thread exists in database
+            query = "SELECT * FROM MessageThread WHERE ThreadID = %s"
+            cursor.execute(query, (messageID,))
             row = cursor.fetchone()
-
+            
             cursor.close()
             conn.close()
-
-
-            print(f"Row {row}")
-
-            if(row is None):
-                self.CreateMessageThread(messageID, user_1, user_2)
-
-
+            
+            # Create thread if it doesn't exist
+            if row is None:
+                create_result = self.CreateMessageThread(messageID, user_1, user_2)
+                if not create_result["success"]:
+                    return create_result
+            
+            # Read and decrypt message file
             subfolder = "MessageThreads"
             filename = str(messageID) + ".json"
             filepath = os.path.join(subfolder, filename)
-
-            content = None
-
-            print(f"Looking for file {filepath}")
-
-            with open(filepath, "r") as file:
-                content = self.decrypt(user_1, user_2, f"{filepath}")
             
-            return content, messageID, 1
-
-        else:
-            return None
-      
-    def CreateMessageThread(self,threadId, party1: int, party2: int):
-        """Create a message thread between 2 users
-            Args:
-                threadId(string):   the unique pairing found from the cantor pair of the two users
-                party1(int): user id with lowest absolute value 
-                party2(int): user id with highest absolute value
-            Returns:
-                int: the id of the newly created message thread
-        """
-
-        conn = self.get_connection()
-        cursor = conn.cursor()
-
-        #Create an entry of the message thread
-        query = """ INSERT INTO MessageThread 
-                    (ThreadID, Participant1, Participant2)
-                    VALUES(%s, %s,%s)
-                """
+            if not os.path.exists(filepath):
+                return self.api_response(
+                    False, 
+                    error="Thread file not found", 
+                    code=404
+                )
             
-        values = (threadId, party1, party2)
-        cursor.execute(query, values) 
-        conn.commit()
-
-       
-
-        #Create the file with the unique primary key as title
-        subfolder = "MessageThreads"
-        filename = str(threadId) + ".json"
-        filepath = os.path.join(subfolder, filename)
-
-        os.makedirs(subfolder, exist_ok=True)
-
-        # Write to the file inside the subfolder
-        with open(filepath, "w") as f:
-            #out = f"Message thread between {party1} and {party2}.\n"
-            self.encrypt(party1,party2,"",filepath)
-            #json.dump(out, f, indent=2)
-
-        # Log the action in audit log
-        audit_query = """
-                INSERT INTO AuditLog (UserID, ActionID, IPAddress, UserAgent, SessionID)
-                VALUES (%s, %s, %s, %s, %s)
-            """
-
-        values = (self.UserID, 7, self.sessionIP, "Unknown", self.sessionID)
-
-        cursor.execute(audit_query, values)
-        conn.commit()
-
-        cursor.close()
-        conn.close()
+            # Decrypt and parse messages
+            content = self.decrypt(user_1, user_2, filepath)
+            messages = self.parse_messages_from_content(content)
+            
+            # Sort messages by timestamp (newest first for pagination)
+            messages_sorted = sorted(
+                messages, 
+                key=lambda x: x.get('timestamp', ''), 
+                reverse=True
+            )
+            
+            # Apply pagination
+            total_count = len(messages_sorted)
+            paginated_messages = messages_sorted[offset:offset + limit]
+            has_more = offset + limit < total_count
+            
+            # Return structured response
+            return self.api_response(
+                True,
+                data={
+                    "thread_id": messageID,
+                    "participant1_id": user_1,
+                    "participant2_id": user_2,
+                    "current_user_id": self.UserID,
+                    "messages": paginated_messages,
+                    "pagination": {
+                        "total_count": total_count,
+                        "limit": limit,
+                        "offset": offset,
+                        "has_more": has_more,
+                        "returned_count": len(paginated_messages)
+                    }
+                },
+                code=200
+            )
+            
+        except PermissionError:
+            return self.api_response(
+                False, 
+                error="Permission denied accessing message thread", 
+                code=403
+            )
+        except FileNotFoundError:
+            return self.api_response(
+                False, 
+                error="Thread file not found", 
+                code=404
+            )
+        except Exception as e:
+            # Log the error (implement proper logging)
+            print(f"Error in ContactUser: {str(e)}")
+            return self.api_response(
+                False, 
+                error="Internal server error", 
+                code=500
+            )
     
-    def SendMessage(self, messageID: int, recipient:int, contents: str):
-        """Send a message to another user.
-            Args: 
-                messageID(int):     Unique ID for the interaction between the two users
-                contents(str):      The message being sent
+    # ==================== Create Message Thread ====================
+    
+    def CreateMessageThread(self, threadId: str, party1: int, party2: int) -> Dict:
         """
+        Create a message thread between 2 users
         
-        conn = self.get_connection()
-        cursor = conn.cursor()
-
-
-        self.encrypt(self.UserID, recipient, contents, f"{messageID}.")
-
-
-        audit_query = """
-                INSERT INTO AuditLog (UserID, ActionID, IPAddress, UserAgent, SessionID)
-                VALUES (%s, %s, %s, %s, %s)
+        Args:
+            threadId: Unique thread identifier
+            party1: User ID with lowest absolute value
+            party2: User ID with highest absolute value
+            
+        Returns:
+            Standardized API response
+        """
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor()
+            
+            # Create database entry
+            query = """
+                INSERT INTO MessageThread 
+                (ThreadID, Participant1, Participant2, DateOfCreation)
+                VALUES(%s, %s, %s, NOW())
             """
-
-        values = (self.UserID, 7, self.sessionIP, "Unknown", self.sessionID)
-
-        noti = Notification()
-
-        cursor.execute(audit_query, values)
-        conn.commit()
-
-        cursor.close()
-        conn.close()
-
-    def generateKey(self, id1: int, id2: int):
-
+            values = (threadId, party1, party2)
+            cursor.execute(query, values)
+            conn.commit()
+            
+            # Create encrypted file with empty message array
+            subfolder = "MessageThreads"
+            filename = str(threadId) + ".json"
+            filepath = os.path.join(subfolder, filename)
+            os.makedirs(subfolder, exist_ok=True)
+            
+            # Initialize with empty message array
+            empty_messages = json.dumps([])
+            self.encrypt(party1, party2, empty_messages, filepath)
+            
+            # Log the action in audit log
+            audit_query = """
+                INSERT INTO AuditLog (UserID, ActionID, IPAddress, UserAgent, SessionID, Timestamp)
+                VALUES (%s, %s, %s, %s, %s, NOW())
+            """
+            values = (self.UserID, 7, self.sessionIP, "Unknown", self.sessionID)
+            cursor.execute(audit_query, values)
+            conn.commit()
+            
+            cursor.close()
+            conn.close()
+            
+            return self.api_response(
+                True,
+                data={
+                    "thread_id": threadId,
+                    "participant1_id": party1,
+                    "participant2_id": party2,
+                    "created_at": datetime.utcnow().isoformat()
+                },
+                code=201
+            )
+            
+        except Exception as e:
+            print(f"Error creating message thread: {str(e)}")
+            return self.api_response(
+                False,
+                error="Failed to create message thread",
+                code=500
+            )
+    
+    # ==================== Send Message with Validation ====================
+    
+    def SendMessage(self, messageID: str, recipient: int, contents: str) -> Dict:
+        """
+        Send a message to another user with validation
+        
+        Args:
+            messageID: Thread ID for the conversation
+            recipient: ID of the recipient user
+            contents: Message content
+            
+        Returns:
+            Standardized API response
+        """
+        try:
+            # Validate recipient ID
+            user_validation = self.validate_user_id(recipient)
+            if not user_validation["valid"]:
+                return self.api_response(
+                    False,
+                    error=user_validation["error"],
+                    code=400
+                )
+            
+            # Validate message content
+            content_validation = self.validate_message_content(contents)
+            if not content_validation["valid"]:
+                return self.api_response(
+                    False,
+                    error=content_validation["error"],
+                    code=400
+                )
+            
+            # Verify user cannot message themselves
+            if self.UserID == recipient:
+                return self.api_response(
+                    False,
+                    error="Cannot send message to yourself",
+                    code=400
+                )
+            
+            # Verify recipient exists
+            conn = self.get_connection()
+            cursor = conn.cursor()
+            
+            query = "SELECT * FROM Users WHERE UserID = %s"
+            cursor.execute(query, (recipient,))
+            row = cursor.fetchone()
+            
+            if row is None:
+                cursor.close()
+                conn.close()
+                return self.api_response(
+                    False,
+                    error="Recipient user not found",
+                    code=404
+                )
+            
+            # Verify thread exists and user has permission
+            query = """
+                SELECT * FROM MessageThread 
+                WHERE ThreadID = %s 
+                AND (Participant1 = %s OR Participant2 = %s)
+            """
+            cursor.execute(query, (messageID, self.UserID, self.UserID))
+            thread = cursor.fetchone()
+            
+            if thread is None:
+                cursor.close()
+                conn.close()
+                return self.api_response(
+                    False,
+                    error="Thread not found or access denied",
+                    code=403
+                )
+            
+            # Create structured message object
+            new_message = self.create_message_object(self.UserID, contents)
+            
+            # Read existing messages
+            subfolder = "MessageThreads"
+            filename = str(messageID) + ".json"
+            filepath = os.path.join(subfolder, filename)
+            
+            user_1 = min(self.UserID, recipient)
+            user_2 = max(self.UserID, recipient)
+            
+            # Decrypt existing messages
+            existing_content = self.decrypt(user_1, user_2, filepath)
+            messages = self.parse_messages_from_content(existing_content)
+            
+            # Append new message
+            messages.append(new_message)
+            
+            # Encrypt updated message list
+            updated_content = json.dumps(messages)
+            self.encrypt(user_1, user_2, updated_content, filepath)
+            
+            # Log the action
+            audit_query = """
+                INSERT INTO AuditLog (UserID, ActionID, DateOfAudit, IPAddress, UserAgent, SessionID)
+                VALUES (%s, %s, NOW(), %s, %s, %s)
+            """
+            values = (self.UserID, 8, self.sessionIP, "Unknown", self.sessionID)
+            cursor.execute(audit_query, values)
+            conn.commit()
+            
+            cursor.close()
+            conn.close()
+            
+            return self.api_response(
+                True,
+                data={
+                    "message": new_message,
+                    "thread_id": messageID
+                },
+                code=201
+            )
+            
+        except FileNotFoundError:
+            return self.api_response(
+                False,
+                error="Thread file not found",
+                code=404
+            )
+        except PermissionError:
+            return self.api_response(
+                False,
+                error="Permission denied",
+                code=403
+            )
+        except Exception as e:
+            print(f"Error sending message: {str(e)}")
+            return self.api_response(
+                False,
+                error="Failed to send message",
+                code=500
+            )
+    
+    # ==================== Encryption Methods ====================
+    
+    def generateKey(self, id1: int, id2: int) -> bytes:
+        """
+        Generate encryption key from user IDs
+        
+        Args:
+            id1: First user ID
+            id2: Second user ID
+            
+        Returns:
+            32-byte encryption key
+        """
         # Sort so that either user can supply ids in any order
         a, b = sorted([int(id1), int(id2)])
         shared = f"{a}:{b}".encode('utf-8')
-        # Deterministic "salt" derived from the ids (so both sides get same salt)
+        
+        # Deterministic "salt" derived from the ids
         salt = hashlib.sha256(shared).digest()[:16]  # 16 bytes
+        
         hkdf = HKDF(
             algorithm=hashes.SHA256(),
             length=32,           # 32 bytes = 256-bit key
@@ -577,68 +919,66 @@ class User:
         )
         key = hkdf.derive(shared)
         return key
-
+    
     def decrypt(self, id1: int, id2: int, filename: str) -> str:
         """
-            Decrypt a file and return its contents as a plain text string.
+        Decrypt a file and return its contents as a plain text string
+        
+        Args:
+            id1: First user ID
+            id2: Second user ID
+            filename: Path to the encrypted file
             
-            Args:
-                id1, id2: User IDs for key generation
-                filename: Path to the encrypted file
-                
-            Returns:
-                str: Decrypted contents as a plain text string
+        Returns:
+            Decrypted contents as a string
         """
-        with open(f"{filename}", 'r') as f:
+        with open(filename, 'r') as f:
             data = json.load(f)
+        
         nonce = base64.b64decode(data["nonce_b64"])
         ct = base64.b64decode(data["ciphertext_b64"])
         key = self.generateKey(id1, id2)
         aesgcm = AESGCM(key)
+        
         try:
             plaintext_bytes = aesgcm.decrypt(nonce, ct, associated_data=None)
             return plaintext_bytes.decode('utf-8')
         except Exception as e:
             print("Decryption failed (wrong ids or tampered file).")
             raise
-
-    def encrypt(self, id1: int, id2: int, plaintext: str, filename: str):
+    
+    def encrypt(self, id1: int, id2: int, plaintext: str, filename: str) -> int:
         """
-            Append plaintext to the existing decrypted contents of a file and encrypt back to the same file.
+        Encrypt plaintext and write to file (overwrites existing content)
+        
+        Args:
+            id1: First user ID
+            id2: Second user ID
+            plaintext: Text to encrypt (should be JSON string of message array)
+            filename: Path to write encrypted file
             
-            Args:
-                id1, id2: User IDs for key generation
-                plaintext: Text to append to the file
-                filename: Path to the encrypted file to modify
+        Returns:
+            1 on success
         """
-
-        # Try to decrypt existing file contents if file doesn't exist or can't be decrypted return nothing
-        try:
-            existing_content = self.decrypt(id1, id2, filename)
-        except (FileNotFoundError, json.JSONDecodeError, Exception):  
-            existing_content = ""
-        
-        # Append new text to the existing content
-        combined_content = existing_content + plaintext
-        
-        # Encrypt the combined content
+        # Encrypt the content
         key = self.generateKey(id1, id2)
         aesgcm = AESGCM(key)
         nonce = os.urandom(12)  # 96-bit nonce for AES-GCM
-        ct = aesgcm.encrypt(nonce, combined_content.encode('utf-8'), associated_data=None)
+        ct = aesgcm.encrypt(nonce, plaintext.encode('utf-8'), associated_data=None)
         
         # Package data needed for decryption
         out = {
             "ids_sorted": ":".join(map(str, sorted([int(id1), int(id2)]))),
-            "salt_hex": hashlib.sha256(f"{min(int(id1),int(id2))}:{max(int(id1),int(id2))}".encode()).digest()[:16].hex(),
+            "salt_hex": hashlib.sha256(
+                f"{min(int(id1), int(id2))}:{max(int(id1), int(id2))}".encode()
+            ).digest()[:16].hex(),
             "nonce_b64": base64.b64encode(nonce).decode('utf-8'),
             "ciphertext_b64": base64.b64encode(ct).decode('utf-8'),
             "kdf_info": "HKDF-SHA256 length=32 info='two-id-comm-key' deterministic-salt-from-ids"
         }
         
-        # Write encrypted content back to the same file
-        with open(f"{filename}", 'w') as f:
+        # Write encrypted content to file
+        with open(filename, 'w') as f:
             json.dump(out, f, indent=2)
         
         return 1
-    
