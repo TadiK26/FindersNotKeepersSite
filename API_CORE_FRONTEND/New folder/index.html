@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Finders Not Keepers</title>
+    <link rel="stylesheet" href="about.css"> <!-- reuse CSS for simplicity -->
+</head>
+<body>
+    <h1>Finders Not Keepers</h1>
+
+    <!-- Registration Form -->
+    <div id="register-section">
+        <h2>Register</h2>
+        <input type="text" id="reg-username" placeholder="Username"><br>
+        <input type="password" id="reg-password" placeholder="Password"><br>
+        <select id="reg-role">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+        </select><br>
+        <button onclick="register()">Register</button>
+        <p id="register-message"></p>
+    </div>
+
+    <!-- Login Form -->
+    <div id="login-section" style="margin-top:20px;">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Username"><br>
+        <input type="password" id="password" placeholder="Password"><br>
+        <button onclick="login()">Login</button>
+        <p id="login-message"></p>
+    </div>
+
+    <!-- Home / Dashboard -->
+    <div id="home-section" style="display:none; margin-top:20px;">
+        <h2>Home</h2>
+        <p id="welcome-message"></p>
+
+        <button onclick="showListings()">My Listings</button>
+        <button onclick="logout()">Logout</button>
+        <button onclick="goToAbout()">About</button>
+
+        <!-- Listings Section -->
+        <div id="listings-section" style="display:none; margin-top:20px;">
+            <h3>Your Listings</h3>
+            <ul id="listings-list"></ul>
+
+            <h4>Add New Listing</h4>
+            <input type="text" id="new-title" placeholder="Title">
+            <input type="text" id="new-desc" placeholder="Description">
+            <button onclick="createListing()">Add Listing</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

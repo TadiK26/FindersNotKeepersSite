@@ -1,0 +1,290 @@
+/*
+=========================
+ALLOWS PAGE TO SCROLL
+========================= 
+*/
+html, body { margin: 0; padding: 0; overflow-x: hidden; }
+* { box-sizing: border-box; }
+img { max-width: 100%; height: auto; display: block; }
+/*
+=========================
+LOGO AND NAV BARS
+========================= 
+*/
+.listings-top{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 100rem;   
+  margin: 1rem auto 1rem;    
+  padding-inline: 1rem;  
+}
+/*
+=========================
+LOGO
+========================= 
+*/
+.site-logo{
+  width: 7rem;  
+  height: auto;
+  margin: 0; 
+  margin-left: -10rem;     
+}
+/*
+=========================
+3 BUTTONS
+========================= 
+*/
+/*layout + alignment for REPORT row */
+.reportbut{
+  max-width: 90rem;         /*same container width as heading */
+  margin: 1rem auto 1.5rem; /*space below the title bar */
+  /* padding: 0 1rem;          side gutters */
+  display: flex;            /*ensure flex for alignment */
+  justify-content: flex-end;/*push the button to the right */
+  gap: 1rem;                /* (keeps room if you add more actions later) */
+}
+
+/*look like a button */
+.reportbut a{
+  font-weight: 700;
+  text-decoration: none;
+  color: #fff;              /*white text */
+  background: rgba(0, 0, 0, 0.662);      /*blue fill */
+  padding: 0.55rem 1.25rem; /*button sizing */
+  border-radius: 0.45rem;   /*rounded corners */
+}
+
+/*
+=========================
+TITLE
+========================= 
+*/
+.heading{
+  max-width: 90rem;
+  margin: 0 auto;
+  margin-top: -4rem;
+}
+.page-title{
+  margin: 0 0 .25rem;
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: black
+}
+.title-bar{
+  height: .25rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg,#2ecc71 0%, #4a89ff 100%);
+  filter: drop-shadow(0 8px 8px rgba(0,0,0,.08));
+}
+
+/* ===== Actions row: search left, report right ===== */
+.actions-row{
+  max-width: 100rem;
+  margin: 1rem auto 1.5rem;
+  margin-top: 0rem;
+  display: flex;
+  justify-content: space-between;  /* search on left, report on right */
+  align-items: center;
+  gap: 50rem;
+  flex-wrap: wrap;                 /* stacks nicely on small screens */
+}
+
+/* Search */
+.searchbar{ flex: 1; max-width: 25rem; }
+.searchbar input{
+  width: 100%;
+  padding: 0.55rem 1rem;
+  font-size: 1rem;
+  border: 2px solid  rgba(0, 0, 0, 0.553); ;
+  border-radius: 0.5rem;
+}
+
+/*
+=========================
+ICONS
+========================= 
+*/
+.icons{             
+  display: flex;
+  justify-content:flex-end;
+  gap: 1rem;
+  max-width: 90rem;
+  margin: 0 auto 1rem;
+  margin-top:-7rem;
+  justify-content: end;
+}
+.rail-icon{ display: inline-block; }
+.rail-icon img{ width: 4rem; height: 4rem; }
+.Notifications{width:5rem}
+/*
+=========================
+FOR SMALL SCREENS
+========================= 
+*/
+@media (max-width: 640px){
+  .icons{
+    position: static;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+}
+/*
+=========================
+LISTING TEMPLATE
+========================= 
+*/
+.listingcard-grid{
+  max-width: 90rem;
+  margin: 0 auto;
+  margin-top: -1rem;
+  display: grid;
+  gap: 3rem;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+}
+@media (max-width: 1100px){ .listingcard-grid{ grid-template-columns: repeat(3,1fr);} }
+@media (max-width: 820px){  .listingcard-grid{ grid-template-columns: repeat(2,1fr);} }
+@media (max-width: 520px){  .listingcard-grid{ grid-template-columns: 1fr; } }
+
+/*
+=========================
+LISITNG CARD TEMPLATE
+========================= 
+*/
+.card{
+  border: 2px solid #111;
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
+  overflow: visible;
+}
+/*
+=========================
+THUMBNAIL
+========================= 
+*/
+.thumb{
+  padding: 1rem 1rem 0;        
+}
+.thumb img{
+  display: block;
+  width: 100%;
+  height: 9rem;
+  object-fit: cover;
+  
+}
+.meta{
+    /* padding: .55rem .7rem;  */
+    padding: 0.05rem 1.25rem 1.25rem;
+    font-size: 1rem; 
+    line-height: 1.45; 
+    color: #111;
+}
+.title{ 
+    margin: .1rem 0 .5rem; 
+    /* font-size: 1rem;  */
+    font-weight: 700; 
+    color: #111;
+    font-size: clamp(1.25rem, 1.1vw + 1rem, 1.9rem);
+}
+.line{
+  margin: .5rem 0;
+  font-size: clamp(1rem, .55vw + .9rem, 1.35rem);
+}
+
+/* 
+==================
+“Where:” / “When:"
+==================
+*/
+.k{ font-weight: 700; }
+.status{ font-weight: 700; }
+.status.lost{ color: #e53935; }
+.status.found{ color: #2e7d32; }
+.status.returned{ color: #1565c0; }
+
+/* ===== Pagination ===== */
+.pager{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  margin: 1.5rem 0 1.25rem;
+}
+.page-btn{
+  border: 0;
+  background: #fff;
+  padding: .25rem .5rem;
+  cursor: pointer;
+  border-radius: .3rem;
+  font-weight: 700;
+}
+.dot{
+  width: .45rem; height: .45rem; border-radius: 999px;
+  border: 1px solid #333; background: #fff;
+}
+.dot.active{ background: #333; }
+
+/*
+=========================
+ALLOWS PAGE TO SCROLL
+========================= 
+*/
+.mini-footer{
+  margin-top: 1.25rem;
+  display: flex;
+  justify-content: center;
+  gap: 2.25rem;
+  flex-wrap: wrap;
+  padding: 0 1rem;
+  max-width: 70rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+.mini-footer a{ text-decoration: none; color: #111; }
+.copy{ text-align: center; margin-top: .5rem; color: #333; }
+
+/* Back row in the detail pane */
+.back-row{
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: .75rem;
+}
+.back-btn{
+  border: 1.5px solid #111;
+  background: #fff;
+  border-radius: .4rem;
+  padding: .35rem .65rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+.back-btn:hover{ background: #f5f5f5; }
+
+/*==============================================================*/
+/* NOTIFICATION & MESSAGE ICON BUTTONS */
+/*==============================================================*/
+.notif-btn,
+.msg-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;     /* size of the emoji or svg icon */
+  cursor: pointer;
+  margin-left: 0.75rem;  /* spacing between buttons */
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.notif-btn:hover,
+.msg-btn:hover {
+  transform: scale(1.15);
+  opacity: 0.8;
+}
+
+/* make sure topcard aligns all items properly */
+.topcard {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
