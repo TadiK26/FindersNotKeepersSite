@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>About - FindersNotKeepers</title>
+    <link rel="stylesheet" href="about.css">
+</head>
+<body>
+    <div id="root">
+        <!-- Header -->
+        <header class="about-header">
+            <img src="logo.svg" alt="FindersNotKeepers logo" class="about-logo" />
+            <h1 class="about-brand">FindersNotKeepers</h1>
+            <div class="about-right"></div>
+        </header>
+
+        <!-- About Text -->
+        <div class="about-text">
+            <p>
+            FindersNotKeepers is a Lost & Found web platform designed to help people recover misplaced belongings in high-density environments such as universities, shopping malls, and events. The system lets users:
+            </p>
+            <ul>
+                <li>Report lost or found items by creating detailed listings with descriptions, categories, dates, locations, and photos.</li>
+                <li>Search and filter listings to find items, narrowing results by category, date, or location.</li>
+                <li>Claim items by submitting proof of ownership, which administrators review before approval.</li>
+                <li>Communicate securely with other users through an in-app messaging system, without exposing personal contact details.</li>
+                <li>Receive notifications when items are matched or claim results are ready.</li>
+                <li>Administrators oversee the platform by approving listings, reviewing claims, and ensuring safety and accuracy.</li>
+            </ul>
+        </div>
+
+        <!-- Back Button -->
+        <div class="topcard">
+            <button class="backbutton" onclick="goBack()">Back</button>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = "index.html"; // back to home page
+        }
+    </script>
+</body>
+</html>

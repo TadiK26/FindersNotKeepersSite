@@ -1,0 +1,12 @@
+So we are using vite testing.
+
+Write this in the command prompt.
+
+============================
+npx vitest
+or live mode
+npx vitest --watch
+
+To specify the file do
+npx vitest Login.test.jsx
+============================
