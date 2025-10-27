@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import logo from "/logo.svg";
 import "./MyArchive.css";
 
+//WHERE CREATED LISTINGS WILL GO
 export default function MyArchive() {
   const navigate = useNavigate();
 
@@ -23,13 +24,14 @@ export default function MyArchive() {
     () => all.filter(it => (it.status || "").toUpperCase() === tab),
     [all, tab]
   );
+  
 
   return (
     <main className="mylist-wrap">
       {/* Header */}
       <header className="mylist-top">
         <img src={logo} alt="FindersNotKeepers" className="mylist-logo" />
-        <h1 className="mylist-title">My Listings</h1>
+        <h1 className="mylist-title">My Archive</h1>
         <div className="mylist-links">
           <Link to="/listings" className="link">HOME</Link>
           <button className="link as-button" onClick={() => navigate(-1)}>BACK</button>
@@ -98,8 +100,12 @@ export default function MyArchive() {
       </section>
 
       {/* Create listing CTA */}
-      <section className="create-cta" onClick={() => navigate("/create")} role="button" tabIndex={0}
-        onKeyDown={(e)=> (e.key === "Enter" || e.key === " ") && navigate("/create")}>
+      <section className="create-cta"
+        onClick={() => navigate("/create")}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e)=> (e.key === "Enter" || e.key === " ") && navigate("/create")}
+      >
         <h2>Create Listing</h2>
       </section>
     </main>

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import logo from '/logo.svg'
 import './Signup.css'
 
+//PAGE TO SIGNUP TO WEBSITE. IT WILL ASK FOR DETAILS
 export default function Signup() {
   const navigate = useNavigate()
   const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '', agree: false })
@@ -115,9 +116,6 @@ export default function Signup() {
 
         <div className="signup-social">
           <div id="googleSignupDiv" className="google-slot" />
-          <button type="button" className="apple-btn" style={{ width: 300 }}>
-             Sign up with Apple
-          </button>
         </div>
 
         <p className="signup-footer">

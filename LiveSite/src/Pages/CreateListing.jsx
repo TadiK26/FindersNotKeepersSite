@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import logo from "/logo.svg";
 import "./CreateListing.css";
 
+
 /* =========================
    NEW: Category options
    ========================= */
@@ -94,7 +95,7 @@ export default function CreateListing() {
     localStorage.setItem("listings", JSON.stringify([newItem, ...existing]));
 
     alert("Listing created!");
-    navigate("/listings");
+    navigate("/mylistings");
   };
 
   return (

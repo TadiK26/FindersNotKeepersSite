@@ -90,9 +90,6 @@ export default function Login() {
 
         <div className="login-social">
           <div id="googleSignInDiv" className="google-slot" />
-          <button type="button" className="apple-btn">
-             Sign in with Apple
-          </button>
         </div>
 
         <p className="login-footer">

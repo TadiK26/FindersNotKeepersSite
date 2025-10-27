@@ -67,15 +67,15 @@
 /*Sign-up socials*/
 /*==================================================*/
 .signup-social{
-  margin-top: 4rem;
-  display: flex; gap: 2rem; justify-content: center; align-items: center;
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.google-slot{ display: inline-flex; }  /* keep Google iframe inline */
-.apple-btn{
-  border: 1px solid #d9d9d9; background: #fff; border-radius: 0.25rem;
-  padding: 0.45rem 1rem; font-weight: 600; white-space: nowrap; cursor: pointer;
+.google-slot{
+  display: flex;
+  justify-content: center;
 }
-.apple-btn:hover{ background: #f7f7f7; }
 /*==================================================*/
 /*Sign-up form*/
 /*==================================================*/

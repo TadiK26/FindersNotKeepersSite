@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import logo from "/logo.svg";
 import "./Notifications.css";
 
-/** Demo data — swap for real API later */
+//NOTIFICATIONS PAGE - ABOUT DETAILS
 const SEED = [
   {
     id: 1,

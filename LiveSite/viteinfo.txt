@@ -1,0 +1,53 @@
+# ================================
+# 🚀 HOW TO RUN A VITE PROJECT
+# ================================
+
+# 1. Check Node.js installation
+node -v
+npm -v
+
+# (If not installed, download from: https://nodejs.org)
+
+# -------------------------------
+# 2. Create a new Vite project
+# -------------------------------
+npm create vite@latest
+
+# Follow the prompts:
+# - Enter project name
+# - Choose a framework (e.g., React, Vue, Svelte, Vanilla)
+# - Choose a variant (JavaScript or TypeScript)
+
+# -------------------------------
+# 3. Enter project directory
+# -------------------------------
+cd my-vite-project
+
+# -------------------------------
+# 4. Install dependencies
+# -------------------------------
+npm install
+
+# -------------------------------
+# 5. Run the development server
+# -------------------------------
+npm run dev
+
+# (Then open the URL shown in your terminal, e.g. http://localhost:5173)
+
+# -------------------------------
+# 6. Build for production
+# -------------------------------
+npm run build
+
+# -------------------------------
+# 7. Preview production build
+# -------------------------------
+npm run preview
+
+# -------------------------------
+# 🔧 Troubleshooting
+# -------------------------------
+# - If "vite: command not found": run "npm install" again
+# - To change the port: npm run dev -- --port=3000
+# - If page is blank: check console for missing imports or wrong paths

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import logo from "/logo.svg";
 import "./Profile.css";
 
+//PROFILE PAGE WHERE USER CAN UPDATE DETAILS AND CREATE LISTING
 export default function Profile() {
   // demo user state (replace with real data later)
   const [name, setName] = useState("Ann Willows");

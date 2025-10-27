@@ -3,7 +3,7 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import logo from "/logo.svg";
 import "./Messages.css";
 
-/** Demo inbox threads & messages (replace with real API later) */
+/*MESSAGRS PAGE WITH OPTION TO TYPE MESSAGE*/
 const DEMO_THREADS = [
   {
     id: "sara",
@@ -21,7 +21,7 @@ const DEMO_THREADS = [
     preview: "Looking for lost Dell Laptop",
     unread: false,
     messages: [
-      { id: 1, from: "David", text: "Have you seen a Dell XPS near library?", at: "09:05" }
+      { id: 1, from: "David", text: "Have you seen a Dell Laptop near the library?", at: "09:05" }
     ]
   },
   {

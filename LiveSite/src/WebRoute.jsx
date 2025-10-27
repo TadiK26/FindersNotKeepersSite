@@ -5,10 +5,8 @@ import Login from './Pages/Login.jsx'
 import Signup from './Pages/Signup.jsx'
 import Listings from './Pages/Listings.jsx'
 import ListingDetail from './Pages/ListingDetail.jsx'
-import Filters from './Pages/Filters.jsx'
 import Settings from './Pages/Settings.jsx'
 import Profile from './Pages/Profile.jsx'
-import ProfileListings from './Pages/ProfileListings.jsx'
 import CreateListing from './Pages/CreateListing.jsx'
 import Notifications from './Pages/Notifications.jsx'
 import Messages from './Pages/Messages.jsx'
@@ -28,7 +26,7 @@ export default function Web() {
       <Route path="/listings" element={<Listings />} />
       <Route path="/listings/:id" element={<ListingDetail />} />
 
-      <Route path="/filters" element={<Filters />} />
+     
 
       <Route path="/settings" element={<Settings />} />
 

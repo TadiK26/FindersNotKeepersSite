@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import logo from '/logo.svg'
 import './Settings.css'
 
+//SETTINGS PAGE - ALLOWING FOR PASSWORD CHANGE, AND OTHER SETTINGS
 export default function Settings() {
   return (
     <main className="settings-wrap">

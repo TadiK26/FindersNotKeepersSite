@@ -3,6 +3,7 @@ import logo from '/logo.svg'
 import './About.css'
 import Footer from '../components/Land Footer.jsx'
 
+/*ABOUT PAGE WITH DETAILS ABOUT THE WEBSITE AND BACK BUTTON*/
 export default function About(){
   const navigate = useNavigate()
   return (

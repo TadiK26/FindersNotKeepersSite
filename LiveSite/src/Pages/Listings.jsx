@@ -4,7 +4,7 @@ import logo from '/logo.svg'
 import profileIcon from '../assets/profile_icon.svg'
 import notificationsIcon from '../assets/notifications_icon.svg'
 import settingsIcon from '../assets/settings_icon.svg'
-import messageIcon from '../assets/message.svg'
+import messageIcon from '../assets/mes.svg'
 import './Listings.css'
 
 import laptopbag from '../photos/blacklaptop.jpg'
@@ -16,6 +16,7 @@ import orangeglasses from '../photos/orange glasses.jpg'
 import wallet from '../photos/wallet.jpg'
 import teddy from '../photos/teddy.jpg'
 
+//LISTING PAGE WITH MOCK ITEMS 
 const ITEMS = [
   { id: 1,  title: 'Black Laptop Bag',  where: 'UP, Hatfield Campus',    when: '7 September 2025',  status: 'LOST',     img: laptopbag, description: 'Black laptop bag with silver zippers. Contains laptop charger and notebooks.' },
   { id: 2,  title: 'Digital Camera',    where: 'Brooklyn Mall, Pretoria', when: '3 September 2025',  status: 'FOUND',    img: digitalcamera, description: 'Canon EOS Rebel T7 with 18-55mm lens. Found near the food court.' },

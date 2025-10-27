@@ -85,26 +85,15 @@
 /*Login for socials*/
 /*==================================================*/
 .login-social{
-  margin-top: 7rem;
+  margin-top: 2rem;
   display: flex;
-  gap: 2rem;           
   justify-content: center;
-  justify-items: center; 
+  align-items: center;
 }
 .google-slot{
-  display: inline-flex; 
+  display: flex;
+  justify-content: center;
 }
-.apple-btn{
-  width: 300px;
-  border: 1px solid #d9d9d9;
-  background: #fff;
-  border-radius: 0.25rem;
-  padding: 0.45rem 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.apple-btn:hover{ background: #f7f7f7; }
 /*==================================================*/
 /*Login footer*/
 /*==================================================*/
