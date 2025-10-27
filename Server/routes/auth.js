@@ -110,4 +110,85 @@ router.get('/me', auth, async (req, res) => { // use the auth method to verify J
   res.json({ user: req.user });
 });
 
+// Google OAuth - Signup/Login
+router.post('/google', async (req, res) => {
+  try {
+    const { credential } = req.body;
+
+    if (!credential) {
+      return res.status(400).json({ error: 'Google credential is required' });
+    }
+
+    // Decode Google JWT token
+    let payload;
+    try {
+      const base64Url = credential.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        Buffer.from(base64, 'base64')
+          .toString()
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      payload = JSON.parse(jsonPayload);
+    } catch (err) {
+      console.error('Failed to decode Google token:', err);
+      return res.status(400).json({ error: 'Invalid Google token' });
+    }
+
+    const { email, name, sub: googleId } = payload;
+
+    if (!email || !name) {
+      return res.status(400).json({ error: 'Invalid Google user data' });
+    }
+
+    // Check if user already exists
+    let user = await User.findByEmail(email);
+    let isNewUser = false;
+
+    if (!user) {
+      // Create new user with Google authentication
+      isNewUser = true;
+      user = await User.create({
+        email,
+        password: `GOOGLE_${googleId}_${Date.now()}`, // Random password for Google users
+        name,
+        role: 'user'
+      });
+
+      // Send welcome email notification for new users
+      try {
+        const emailService = require('../services/emailService');
+        await emailService.sendWelcomeEmail(email, name);
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError);
+        // Don't fail the registration if email fails
+      }
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      message: isNewUser ? 'Account created successfully' : 'Login successful',
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      },
+      isNewUser
+    });
+  } catch (error) {
+    console.error('Google auth error:', error);
+    res.status(500).json({ error: 'Server error during Google authentication' });
+  }
+});
+
 module.exports = router;

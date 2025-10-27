@@ -1,4 +1,5 @@
-import mysql.connector
+import psycopg2
+import psycopg2.extras
 import bcrypt
 import os
 from dotenv import load_dotenv
@@ -16,11 +17,11 @@ class Session:
     def get_connection():
         load_dotenv()
 
-        return mysql.connector.connect(
+        return psycopg2.connect(
             host=os.getenv("DB_HOST"),
             user=os.getenv("DB_USER"),
             password=os.getenv("DB_PASSWORD"),
-            database="findersnotkeepers"
+            dbname="findersnotkeepers"
         )
 
     def register(self,Username=None, Lastname=None, Firstnames=None,Email=None, 
@@ -41,17 +42,17 @@ class Session:
         print(f"{PlainTextPassword} == {PasswordHash}")
 
         query = """
-            INSERT INTO Users 
-            (Username, Lastname, Firstnames, Email, PasswordHash, Role, 
+            INSERT INTO Users
+            (Username, Lastname, Firstnames, Email, PasswordHash, Role,
              NotificationPreference, CreationMethod, ProfileImageID)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING UserID
             """
         values = (Username, Lastname, Firstnames, Email,
                        PasswordHash, "USER", 1, CreationMethod, ProfileImageID)
-        
-        cursor.execute(query, values)
-        UserID = cursor.lastrowid
 
+        cursor.execute(query, values)
+        UserID = cursor.fetchone()[0]
         conn.commit()
         cursor.close() 
         conn.close()
@@ -120,12 +121,12 @@ class Session:
     def loadProfile(self,username = None, email = None, userid = None):
         """
             Loads the users details to their profile object
-            Args: 
+            Args:
                 self: Class object
                 username(str), email(str), userid(int)
         """
         conn = self.get_connection()
-        cursor = conn.cursor(dictionary=True)
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         
         
         #Search for a user based on the first non NULL result

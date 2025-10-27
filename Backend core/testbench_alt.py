@@ -1,5 +1,6 @@
 import unittest
-import mysql.connector
+import psycopg2
+import psycopg2.extras
 import os
 import tempfile
 import shutil

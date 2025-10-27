@@ -1,4 +1,5 @@
-import mysql.connector
+import psycopg2
+import psycopg2.extras
 import os
 import json
 import base64
@@ -40,11 +41,11 @@ class User:
     def get_connection():
         load_dotenv()
 
-        return mysql.connector.connect(
+        return psycopg2.connect(
             host=os.getenv("DB_HOST"),
             user=os.getenv("DB_USER"),
             password=os.getenv("DB_PASSWORD"),
-            database="findersnotkeepers"
+            dbname="findersnotkeepers"
         )
     
     def UpdateProfile(self):
@@ -109,15 +110,16 @@ class User:
         cursor = conn.cursor()
 
         query = """
-            INSERT INTO Listings 
+            INSERT INTO Listings
             (UserID, ItemTitle, CategoryID, Description, Image1ID, LocationLost, Status)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
+            RETURNING ListingID
             """
         values = (self.UserID, ItemTitle, CategoryID, Description, Image1, Location, f"Waiting for Verification-{Status}")
-        
+
         cursor.execute(query, values)
+        listingID = cursor.fetchone()[0]
         conn.commit()
-        listingID = cursor.lastrowid
 
         if Image2 is not None:
             query = """
@@ -177,7 +179,7 @@ class User:
 
         query = """
             UPDATE Listings SET
-                Status="Deleted by User"
+                Status='Deleted by User'
             WHERE UserID=%s
             """
 
@@ -281,7 +283,7 @@ class User:
 
         query = """
             UPDATE Listings SET
-                Status="Returned"
+                Status='Returned'
             WHERE UserID=%s
             """
 
@@ -366,24 +368,25 @@ class User:
             
         # Create the claim as all checks have passed
         insert_claim_query = """
-                INSERT INTO Claims 
+                INSERT INTO Claims
                 (ImageID, ClaimantID, ListingID, Description)
                 VALUES (%s, %s, %s, %s)
+                RETURNING ClaimID
             """
         values = (ImageID, self.UserID, listingID, description)
         cursor.execute(insert_claim_query, values)
-            
+        claimID = cursor.fetchone()[0]
+
         # Update the listing to mark it as having a pending claim
 
         update_listing_query = """
-                UPDATE Listings 
-                SET Status = 'Pending Claim' 
+                UPDATE Listings
+                SET Status = 'Pending Claim'
                 WHERE ListingID = %s AND Status != 'Claimed'
             """
         cursor.execute(update_listing_query, (listingID,))
-            
+
         conn.commit()
-        claimID = cursor.lastrowid
             
         # Log the action in audit log
         audit_query = """
@@ -703,9 +706,9 @@ class User:
             
             # Create database entry
             query = """
-                INSERT INTO MessageThread 
+                INSERT INTO MessageThread
                 (ThreadID, Participant1, Participant2, DateOfCreation)
-                VALUES(%s, %s, %s, NOW())
+                VALUES(%s, %s, %s, CURRENT_DATE)
             """
             values = (threadId, party1, party2)
             cursor.execute(query, values)
@@ -723,8 +726,8 @@ class User:
             
             # Log the action in audit log
             audit_query = """
-                INSERT INTO AuditLog (UserID, ActionID, IPAddress, UserAgent, SessionID, Timestamp)
-                VALUES (%s, %s, %s, %s, %s, NOW())
+                INSERT INTO AuditLog (UserID, ActionID, IPAddress, UserAgent, SessionID, DateOfAudit)
+                VALUES (%s, %s, %s, %s, %s, CURRENT_DATE)
             """
             values = (self.UserID, 7, self.sessionIP, "Unknown", self.sessionID)
             cursor.execute(audit_query, values)
@@ -853,7 +856,7 @@ class User:
             # Log the action
             audit_query = """
                 INSERT INTO AuditLog (UserID, ActionID, DateOfAudit, IPAddress, UserAgent, SessionID)
-                VALUES (%s, %s, NOW(), %s, %s, %s)
+                VALUES (%s, %s, CURRENT_DATE, %s, %s, %s)
             """
             values = (self.UserID, 8, self.sessionIP, "Unknown", self.sessionID)
             cursor.execute(audit_query, values)

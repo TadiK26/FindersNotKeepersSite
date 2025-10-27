@@ -1,1 +1,2 @@
-DELETE FROM Users WHERE Username = "Hulk"
+-- PostgreSQL Terminal Commands
+DELETE FROM Users WHERE Username = 'Hulk';

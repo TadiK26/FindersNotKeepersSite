@@ -1,6 +1,7 @@
-import smtplib 
+import smtplib
 import os
-import mysql.connector
+import psycopg2
+import psycopg2.extras
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
@@ -12,18 +13,18 @@ class Notification:
     def get_connection():
         load_dotenv()
 
-        return mysql.connector.connect(
+        return psycopg2.connect(
             host=os.getenv("DB_HOST"),
             user=os.getenv("DB_USER"),
             password=os.getenv("DB_PASSWORD"),
-            database="findersnotkeepers"
+            dbname="findersnotkeepers"
         )  
 
     def SendNewListingNoti(self, listID: int):
         """Notify all users (who want listing notifications) when a new item is posted."""
         try:
             conn = self.get_connection()
-            cursor = conn.cursor(dictionary=True)
+            cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
             cursor.execute("SELECT * FROM Listings WHERE ListingID = %s", (listID,))
             listing = cursor.fetchone()
@@ -47,7 +48,7 @@ class Notification:
         """Send claim verification request to admins."""
         try:
             conn = self.get_connection()
-            cursor = conn.cursor(dictionary=True)
+            cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
             cursor.execute("SELECT Email FROM Users WHERE Role = 'ADMIN'")
             for row in cursor.fetchall():
@@ -65,7 +66,7 @@ class Notification:
         """Notify a user they received a new message."""
         try:
             conn = self.get_connection()
-            cursor = conn.cursor(dictionary=True)
+            cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
             cursor.execute("SELECT Email, NotificationPreference FROM Users WHERE UserID = %s", (recipient,))
             record = cursor.fetchone()
@@ -87,7 +88,7 @@ class Notification:
         """Send new listing verification request to admins."""
         try:
             conn = self.get_connection()
-            cursor = conn.cursor(dictionary=True)
+            cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
             cursor.execute("SELECT Email FROM Users WHERE Role = 'ADMIN'")
             for row in cursor.fetchall():
@@ -103,7 +104,7 @@ class Notification:
         """Send direct message to a specific admin."""
         try:
             conn = self.get_connection()
-            cursor = conn.cursor(dictionary=True)
+            cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
             cursor.execute("SELECT Email FROM Users WHERE UserID = %s AND Role = 'ADMIN'", (adminID,))
             record = cursor.fetchone()

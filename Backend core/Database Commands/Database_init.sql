@@ -1,225 +1,163 @@
-﻿CREATE TABLE IF NOT EXISTS `Users` (
-    `UserID` int  NOT NULL AUTO_INCREMENT,
-    `Username` VARCHAR(255)  NOT NULL ,
-    `Lastname` VARCHAR(255)  NOT NULL ,
-    `Firstnames` VARCHAR(255)  NOT NULL ,
-    `Email` VARCHAR(255)  NOT NULL ,
-    `PasswordHash` VARCHAR(255)  NOT NULL ,
-    `Role` VARCHAR(255)  NOT NULL ,
-    `NotificationPreference` int  NOT NULL ,
-    `DateOfCreation` DATE  NOT NULL ,
-    `CreationMethod` VARCHAR(255)  NOT NULL ,
-    `LastLoginDate` DATE  NULL ,  
-    `ProfileImageID` int  NOT NULL , -- Optional profile image
-    PRIMARY KEY (
-        `UserID`
-    ),
-    CONSTRAINT `uc_Users_Username` UNIQUE (
-        `Username`
-    ),
-    CONSTRAINT `uc_Users_Email` UNIQUE (
-        `Email`
-    )
+-- PostgreSQL Database Initialization Script
+
+CREATE TABLE IF NOT EXISTS Users (
+    UserID SERIAL PRIMARY KEY,
+    Username VARCHAR(255) NOT NULL UNIQUE,
+    Lastname VARCHAR(255) NOT NULL,
+    Firstnames VARCHAR(255) NOT NULL,
+    Email VARCHAR(255) NOT NULL UNIQUE,
+    PasswordHash VARCHAR(255) NOT NULL,
+    Role VARCHAR(255) NOT NULL,
+    NotificationPreference INT NOT NULL,
+    DateOfCreation DATE NOT NULL DEFAULT CURRENT_DATE,
+    CreationMethod VARCHAR(255) NOT NULL,
+    LastLoginDate DATE NULL DEFAULT NULL,
+    ProfileImageID INT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS `Category` (
-    `CategoryID` int  NOT NULL AUTO_INCREMENT,
-    `Description` VARCHAR(255)  NOT NULL ,
-    PRIMARY KEY (
-        `CategoryID`
-    )
+CREATE TABLE IF NOT EXISTS Category (
+    CategoryID SERIAL PRIMARY KEY,
+    Description VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS `Listings` (
-    `ListingID` int  NOT NULL AUTO_INCREMENT,
-    `UserID` int  NOT NULL ,
-    `ItemTitle` VARCHAR(255)  NOT NULL ,
-    `CategoryID` int  NOT NULL ,  
-    `Description` VARCHAR(255)  NULL , -- Optional detailed description
-    `Image1ID` int  NULL , -- Required primary image
-    `Image2ID` int  NULL , -- Optional second image
-    `Image3ID` int  NULL , -- Optional third image
-    `Status` VARCHAR(255)  NOT NULL ,
-    `CreationDate` DATE  NOT NULL ,
-    `CloseDate` DATE  NULL ,  
-    `ClaimantID` int  NULL , -- User who claimed the item
-    `LocationLost` VARCHAR(255)  NOT NULL ,  -- Where item was lost/found
-    PRIMARY KEY (
-        `ListingID`
-    )
+CREATE TABLE IF NOT EXISTS Listings (
+    ListingID SERIAL PRIMARY KEY,
+    UserID INT NOT NULL,
+    ItemTitle VARCHAR(255) NOT NULL,
+    CategoryID INT NOT NULL,
+    Description VARCHAR(255) NULL,
+    Image1ID INT NULL,
+    Image2ID INT NULL,
+    Image3ID INT NULL,
+    Status VARCHAR(255) NOT NULL,
+    CreationDate DATE NOT NULL DEFAULT CURRENT_DATE,
+    CloseDate DATE NULL DEFAULT NULL,
+    ClaimantID INT NULL,
+    LocationLost VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS `Action` (
-    `ActionID` int  NOT NULL ,
-    `Description` VARCHAR(255)  NOT NULL ,
-    PRIMARY KEY (
-        `ActionID`
-    )
+CREATE TABLE IF NOT EXISTS Action (
+    ActionID INT PRIMARY KEY,
+    Description VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS `MessageThread` (
-    `ThreadID` VARCHAR(40)  NOT NULL ,
-    `Participant1` int  NOT NULL ,
-    `Participant2` int  NOT NULL ,
-    `DateOfCreation` DATE  NOT NULL ,
-    PRIMARY KEY (
-        `ThreadID`
-    )
+CREATE TABLE IF NOT EXISTS MessageThread (
+    ThreadID VARCHAR(40) PRIMARY KEY,
+    Participant1 INT NOT NULL,
+    Participant2 INT NOT NULL,
+    DateOfCreation DATE NOT NULL DEFAULT CURRENT_DATE
 );
 
-CREATE TABLE IF NOT EXISTS `AuditLog` (
-    `LogID` int  NOT NULL AUTO_INCREMENT,
-    `UserID` int  NOT NULL ,
-    `ActionID` int  NOT NULL ,
-    `DateOfAudit` DATE  NOT NULL ,
-    `IPAddress` VARCHAR(255)  NOT NULL ,
-    `UserAgent` TEXT  NOT NULL ,
-    `SessionID` VARCHAR(255)  NOT NULL ,
-    PRIMARY KEY (
-        `LogID`
-    )
+CREATE TABLE IF NOT EXISTS AuditLog (
+    LogID SERIAL PRIMARY KEY,
+    UserID INT NOT NULL,
+    ActionID INT NOT NULL,
+    DateOfAudit DATE NOT NULL DEFAULT CURRENT_DATE,
+    IPAddress VARCHAR(255) NOT NULL,
+    UserAgent TEXT NOT NULL,
+    SessionID VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS `ReportLog` (
-    `ReportID` int  NOT NULL AUTO_INCREMENT,
-    `RequestedID` int  NOT NULL , -- User whose report is being requested
-    `RequesterID` int  NOT NULL , -- User/Admin making the report
-    `RequestDate` DATE  NOT NULL ,
-    `ReportCriteria` VARCHAR(255)  NOT NULL ,
-    `Status` VARCHAR(255)  NOT NULL ,
-    PRIMARY KEY (
-        `ReportID`
-    )
+CREATE TABLE IF NOT EXISTS ReportLog (
+    ReportID SERIAL PRIMARY KEY,
+    RequestedID INT NOT NULL,
+    RequesterID INT NOT NULL,
+    RequestDate DATE NOT NULL DEFAULT CURRENT_DATE,
+    ReportCriteria VARCHAR(255) NOT NULL,
+    Status VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS `Image` (
-    `ImageID` int  NOT NULL AUTO_INCREMENT,
-    `URL` VARCHAR(255)  NOT NULL ,
-    `uploadDate` DATE  NOT NULL ,
-    `assocEntityType` VARCHAR(255)  NULL , -- Type of entity image belongs to
-    `assocEntityID` int  NULL , -- ID of associated entity
-    `imageVector` VARCHAR(255)  NULL , -- AI-generated image vector for similarity matching
-    `OriginalFileName` VARCHAR(255)  NOT NULL ,
-    `FileSize` int  NOT NULL ,
-    PRIMARY KEY (
-        `ImageID`
-    )
+CREATE TABLE IF NOT EXISTS Image (
+    ImageID SERIAL PRIMARY KEY,
+    URL VARCHAR(255) NOT NULL,
+    uploadDate DATE NOT NULL DEFAULT CURRENT_DATE,
+    assocEntityType VARCHAR(255) NULL,
+    assocEntityID INT NULL,
+    imageVector VARCHAR(255) NULL,
+    OriginalFileName VARCHAR(255) NOT NULL,
+    FileSize INT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS `Notifications` (
-    `NotificationID` int  NOT NULL ,
-    `Description` VARCHAR(255)  NOT NULL ,
-    PRIMARY KEY (
-        `NotificationID`
-    )
+CREATE TABLE IF NOT EXISTS Notifications (
+    NotificationID INT PRIMARY KEY,
+    Description VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS `WarningSetup` (
-    `WarningID` int  NOT NULL AUTO_INCREMENT ,
-    `UserID` int  NOT NULL ,
-    `ItemName` VARCHAR(255)  NULL ,
-    `ItemLocation` VARCHAR(255)  NULL ,
-    `ItemCategory` VARCHAR(255)  NULL ,
-    PRIMARY KEY (
-        `WarningID`
-    )
+CREATE TABLE IF NOT EXISTS WarningSetup (
+    WarningID SERIAL PRIMARY KEY,
+    UserID INT NOT NULL,
+    ItemName VARCHAR(255) NULL,
+    ItemLocation VARCHAR(255) NULL,
+    ItemCategory VARCHAR(255) NULL
 );
 
-CREATE TABLE IF NOT EXISTS `Claims` (
-    `ClaimID` int  NOT NULL AUTO_INCREMENT ,
-    `ImageID` int  NOT NULL ,
-    `ClaimantID` int  NOT NULL ,
-    `ListingID` int  NOT NULL ,
-    `Description` VARCHAR(255) NULL ,
-    `ClaimDate` DATE  NOT NULL ,
-    PRIMARY KEY (
-        `ClaimID`
-    )
+CREATE TABLE IF NOT EXISTS Claims (
+    ClaimID SERIAL PRIMARY KEY,
+    ImageID INT NOT NULL,
+    ClaimantID INT NOT NULL,
+    ListingID INT NOT NULL,
+    Description VARCHAR(255) NULL,
+    ClaimDate DATE NOT NULL DEFAULT CURRENT_DATE
 );
 
-ALTER TABLE Users AUTO_INCREMENT = 10000;
+-- Set the starting value for Users UserID to 10000
+ALTER SEQUENCE users_userid_seq RESTART WITH 10000;
 
-ALTER TABLE `Users` ADD CONSTRAINT `fk_Users_NotificationPreference` FOREIGN KEY(`NotificationPreference`)
-REFERENCES `Notifications` (`NotificationID`);
+-- Add foreign key constraints
+ALTER TABLE Users ADD CONSTRAINT fk_Users_NotificationPreference
+    FOREIGN KEY(NotificationPreference) REFERENCES Notifications(NotificationID);
 
-ALTER TABLE `Users` ADD CONSTRAINT `fk_Users_ProfileImageID` FOREIGN KEY(`ProfileImageID`)
-REFERENCES `Image` (`ImageID`);
+ALTER TABLE Users ADD CONSTRAINT fk_Users_ProfileImageID
+    FOREIGN KEY(ProfileImageID) REFERENCES Image(ImageID);
 
-ALTER TABLE `Listings` ADD CONSTRAINT `fk_Listings_UserID` FOREIGN KEY(`UserID`)
-REFERENCES `Users` (`UserID`);
+ALTER TABLE Listings ADD CONSTRAINT fk_Listings_UserID
+    FOREIGN KEY(UserID) REFERENCES Users(UserID);
 
-ALTER TABLE `Listings` ADD CONSTRAINT `fk_Listings_CategoryID` FOREIGN KEY(`CategoryID`)
-REFERENCES `Category` (`CategoryID`);
+ALTER TABLE Listings ADD CONSTRAINT fk_Listings_CategoryID
+    FOREIGN KEY(CategoryID) REFERENCES Category(CategoryID);
 
-ALTER TABLE `Listings` ADD CONSTRAINT `fk_Listings_Image1ID` FOREIGN KEY(`Image1ID`)
-REFERENCES `Image` (`ImageID`);
+ALTER TABLE Listings ADD CONSTRAINT fk_Listings_Image1ID
+    FOREIGN KEY(Image1ID) REFERENCES Image(ImageID);
 
-ALTER TABLE `Listings` ADD CONSTRAINT `fk_Listings_Image2ID` FOREIGN KEY(`Image2ID`)
-REFERENCES `Image` (`ImageID`);
+ALTER TABLE Listings ADD CONSTRAINT fk_Listings_Image2ID
+    FOREIGN KEY(Image2ID) REFERENCES Image(ImageID);
 
-ALTER TABLE `Listings` ADD CONSTRAINT `fk_Listings_Image3ID` FOREIGN KEY(`Image3ID`)
-REFERENCES `Image` (`ImageID`);
+ALTER TABLE Listings ADD CONSTRAINT fk_Listings_Image3ID
+    FOREIGN KEY(Image3ID) REFERENCES Image(ImageID);
 
-ALTER TABLE `Listings` ADD CONSTRAINT `fk_Listings_ClaimantID` FOREIGN KEY(`ClaimantID`)
-REFERENCES `Users` (`UserID`);
+ALTER TABLE Listings ADD CONSTRAINT fk_Listings_ClaimantID
+    FOREIGN KEY(ClaimantID) REFERENCES Users(UserID);
 
-ALTER TABLE `MessageThread` ADD CONSTRAINT `fk_MessageThread_Participant1` FOREIGN KEY(`Participant1`)
-REFERENCES `Users` (`UserID`);
+ALTER TABLE MessageThread ADD CONSTRAINT fk_MessageThread_Participant1
+    FOREIGN KEY(Participant1) REFERENCES Users(UserID);
 
-ALTER TABLE `MessageThread` ADD CONSTRAINT `fk_MessageThread_Participant2` FOREIGN KEY(`Participant2`)
-REFERENCES `Users` (`UserID`);
+ALTER TABLE MessageThread ADD CONSTRAINT fk_MessageThread_Participant2
+    FOREIGN KEY(Participant2) REFERENCES Users(UserID);
 
-ALTER TABLE `AuditLog` ADD CONSTRAINT `fk_AuditLog_UserID` FOREIGN KEY(`UserID`)
-REFERENCES `Users` (`UserID`);
+ALTER TABLE AuditLog ADD CONSTRAINT fk_AuditLog_UserID
+    FOREIGN KEY(UserID) REFERENCES Users(UserID);
 
-ALTER TABLE `AuditLog` ADD CONSTRAINT `fk_AuditLog_ActionID` FOREIGN KEY(`ActionID`)
-REFERENCES `Action` (`ActionID`);
+ALTER TABLE AuditLog ADD CONSTRAINT fk_AuditLog_ActionID
+    FOREIGN KEY(ActionID) REFERENCES Action(ActionID);
 
-ALTER TABLE  `ReportLog` ADD CONSTRAINT `fk_ReportLog_RequestedID` FOREIGN KEY(`RequestedID`)
-REFERENCES `Users` (`UserID`);
+ALTER TABLE ReportLog ADD CONSTRAINT fk_ReportLog_RequestedID
+    FOREIGN KEY(RequestedID) REFERENCES Users(UserID);
 
-ALTER TABLE `ReportLog` ADD CONSTRAINT `fk_ReportLog_RequesterID` FOREIGN KEY(`RequesterID`)
-REFERENCES `Users` (`UserID`);
+ALTER TABLE ReportLog ADD CONSTRAINT fk_ReportLog_RequesterID
+    FOREIGN KEY(RequesterID) REFERENCES Users(UserID);
 
-ALTER TABLE `Claims` ADD CONSTRAINT `fk_Claims_ImageID` FOREIGN KEY(`ImageID`)
-REFERENCES `Image` (`ImageID`);
+ALTER TABLE Claims ADD CONSTRAINT fk_Claims_ImageID
+    FOREIGN KEY(ImageID) REFERENCES Image(ImageID);
 
-ALTER TABLE `Claims` ADD CONSTRAINT `fk_Claims_ClaimantID` FOREIGN KEY(`ClaimantID`)
-REFERENCES `Users` (`UserID`);
+ALTER TABLE Claims ADD CONSTRAINT fk_Claims_ClaimantID
+    FOREIGN KEY(ClaimantID) REFERENCES Users(UserID);
 
-ALTER TABLE `Claims` ADD CONSTRAINT `fk_Claims_ListingID` FOREIGN KEY(`ListingID`)
-REFERENCES `Listings` (`ListingID`);
+ALTER TABLE Claims ADD CONSTRAINT fk_Claims_ListingID
+    FOREIGN KEY(ListingID) REFERENCES Listings(ListingID);
 
-ALTER TABLE  `Users` 
-MODIFY COLUMN `DateOfCreation` DATE NOT NULL DEFAULT (NOW()),
-MODIFY COLUMN `LastLoginDate` DATE NULL DEFAULT NULL;
-
-ALTER TABLE `Listings` 
-MODIFY COLUMN `CreationDate` DATE NOT NULL DEFAULT (NOW()),
-MODIFY COLUMN `CloseDate` DATE NULL DEFAULT NULL;
-
-ALTER TABLE `MessageThread` 
-MODIFY COLUMN `DateOfCreation` DATE NOT NULL DEFAULT (NOW());
-
-ALTER TABLE `AuditLog` 
-MODIFY COLUMN `DateOfAudit` DATE NOT NULL DEFAULT (NOW());
-
-ALTER TABLE `ReportLog` 
-MODIFY COLUMN `RequestDate` DATE NOT NULL DEFAULT (NOW());
-
-ALTER TABLE `Image` 
-MODIFY COLUMN `uploadDate` DATE NOT NULL DEFAULT (NOW());
-
-
--- ALTER TABLE `Image` 
--- MODIFY COLUMN `uploadDate` DATE NOT NULL DEFAULT (NOW());
-
-ALTER TABLE `Claims` 
-MODIFY COLUMN `ClaimDate` DATE NOT NULL DEFAULT (NOW());
-
-
-INSERT INTO `Action` (`ActionID`, `Description`) 
-VALUES 
+-- Insert initial data
+INSERT INTO Action (ActionID, Description)
+VALUES
     (1, 'User Login'),
     (2, 'User Logout'),
     (3, 'Create Listing'),
@@ -232,8 +170,8 @@ VALUES
     (10, 'Password Reset'),
     (11, 'Account Creation');
 
-INSERT INTO `Category` (`CategoryID`, `Description`) 
-VALUES 
+INSERT INTO Category (CategoryID, Description)
+VALUES
     (1, 'Student Card'),
     (2, 'Electronic Device'),
     (3, 'Clothing'),
@@ -243,8 +181,8 @@ VALUES
     (7, 'Schooling Equipment'),
     (8, 'Other');
 
-INSERT INTO `Notifications` (`NotificationID`, `Description`) 
-VALUES 
+INSERT INTO Notifications (NotificationID, Description)
+VALUES
     (1, 'No Email Notifications'),
     (2, 'All Email Notifications'),
     (3, 'Email Notifications of New Listings only'),
@@ -252,7 +190,7 @@ VALUES
     (5, 'Email Notifications of Claims only'),
     (6, 'Email Notifications for Claims and Messages'),
     (7, 'Email Notifications for Listings and Claims'),
-    (8, 'Email Notifications for Messages and Listings'); 
+    (8, 'Email Notifications for Messages and Listings');
 
-INSERT INTO `Image` (`URL`, `OriginalFileName`, `FileSize`)
-VALUES ("local", "default-icon.png", 2.7);
+INSERT INTO Image (URL, OriginalFileName, FileSize)
+VALUES ('local', 'default-icon.png', 2.7);

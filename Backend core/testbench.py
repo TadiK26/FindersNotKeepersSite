@@ -4,7 +4,8 @@ from Notification import Notification
 
 
 
-import mysql.connector
+import psycopg2
+import psycopg2.extras
 import os
 from dotenv import load_dotenv
 
@@ -24,11 +25,11 @@ def SessionTest_1():
     if(new_user is not None):
         print("Test Passed\nNew User ID:", new_user.UserID)
 
-        conn = mysql.connector.connect(
+        conn = psycopg2.connect(
             host=os.getenv("DB_HOST"),
             user=os.getenv("DB_USER"),
             password=os.getenv("DB_PASSWORD"),
-            database="findersnotkeepers")
+            dbname="findersnotkeepers")
     
         cursor = conn.cursor()
         cursor.execute("DELETE FROM Users WHERE UserID = %s", (new_user.UserID,))
@@ -149,12 +150,12 @@ def UserTest_2():
         if(user.Username == "Batman"):
             
             res = user.MakeListing("Cowl", 3, "Hides Identity", "Engineerng 2", False, 1)
-            
-            conn = mysql.connector.connect(
+
+            conn = psycopg2.connect(
             host=os.getenv("DB_HOST"),
             user=os.getenv("DB_USER"),
             password=os.getenv("DB_PASSWORD"),
-            database="findersnotkeepers")
+            dbname="findersnotkeepers")
         
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM Listings ORDER BY ListingID DESC LIMIT 1")

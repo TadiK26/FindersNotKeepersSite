@@ -1,4 +1,5 @@
-import mysql.connector
+import psycopg2
+import psycopg2.extras
 from User import User
 from Notification import Notification
 
@@ -35,7 +36,7 @@ class Admin(User):
 
         query = """
             UPDATE Listings SET
-                Status = "Claimed", ClaimantID = %s, CloseDate = NOW()
+                Status = 'Claimed', ClaimantID = %s, CloseDate = CURRENT_DATE
             WHERE ListingID=%s
             """
 
@@ -132,7 +133,7 @@ class Admin(User):
 
         query = """
             UPDATE Listings SET
-                Status= "Active"
+                Status= 'Active'
             WHERE ListingID=%s
             """
 
@@ -164,7 +165,7 @@ class Admin(User):
 
         query = """
             UPDATE Listings SET
-                Status= "Closed"
+                Status= 'Closed'
             WHERE ListingID=%s
             """
 
