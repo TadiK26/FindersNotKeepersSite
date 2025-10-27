@@ -7,7 +7,6 @@ bcrypt
 openai
 mysql.connector
 werkzeug
-email
 smtplib
 base64
 hashlib
@@ -18,3 +17,5 @@ typing
 hashlib
 cryptography
 json
+email.mime.text
+email.mime.multipart
