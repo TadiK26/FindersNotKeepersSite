@@ -1,0 +1,73 @@
+services:
+  # Backend API Server
+  - type: web
+    name: findersnotkeepers-backend
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: cd Server && npm install
+    startCommand: cd Server && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: FRONTEND_URL
+        value: https://findersnotkeepers.onrender.com
+      - key: DB_HOST
+        fromDatabase:
+          name: findersnotkeepers-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: findersnotkeepers-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: findersnotkeepers-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: findersnotkeepers-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: findersnotkeepers-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: EMAIL_ADDRESS
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: 587
+      - key: GOOGLE_CLIENT_ID
+        value: 257643953276-8su4c8tr824kok0k40jd2rbgp5ek6roa.apps.googleusercontent.com
+    healthCheckPath: /api/health
+
+  # Frontend Static Site
+  - type: web
+    name: findersnotkeepers-frontend
+    runtime: static
+    region: oregon
+    buildCommand: cd LiveSite && npm install && npm run build
+    staticPublishPath: LiveSite/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://findersnotkeepers-backend.onrender.com
+      - key: VITE_GOOGLE_CLIENT_ID
+        value: 257643953276-8su4c8tr824kok0k40jd2rbgp5ek6roa.apps.googleusercontent.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+# PostgreSQL Database
+databases:
+  - name: findersnotkeepers-db
+    databaseName: findersnotkeepers
+    user: findersnotkeepers
+    plan: free
