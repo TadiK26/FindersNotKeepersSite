@@ -34,6 +34,10 @@ export default function Listings() {
   const [query, setQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
   const [otherItemsPage, setOtherItemsPage] = useState(1);
+  const [showClaimDialog, setShowClaimDialog] = useState(false);
+  const [claimPhoto, setClaimPhoto] = useState(null);
+  const [claimPhotoPreview, setClaimPhotoPreview] = useState(null);
+  const [claimDescription, setClaimDescription] = useState('');
 
   // Filter by query
   const filtered = ITEMS.filter(it =>
@@ -77,8 +81,46 @@ export default function Listings() {
   };
 
   const handleClaimClick = () => {
+    setShowClaimDialog(true);
+  };
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setClaimPhoto(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setClaimPhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleClaimSubmit = () => {
+    if (!claimPhoto) {
+      alert('Please upload a photo as proof');
+      return;
+    }
+    if (!claimDescription.trim()) {
+      alert('Please provide a description');
+      return;
+    }
+
     // TODO: Implement claim submission to backend
     alert(`Claim submitted for: ${selectedItem.title}\nReference ID: #${selectedItem.id.toString().padStart(4, '0')}\n\nYou will be contacted shortly to verify your claim.`);
+
+    // Reset and close dialog
+    setShowClaimDialog(false);
+    setClaimPhoto(null);
+    setClaimPhotoPreview(null);
+    setClaimDescription('');
+  };
+
+  const handleClaimCancel = () => {
+    setShowClaimDialog(false);
+    setClaimPhoto(null);
+    setClaimPhotoPreview(null);
+    setClaimDescription('');
   };
 
   if (selectedItem) {
@@ -187,6 +229,55 @@ export default function Listings() {
             </div>
           </section>
         </div>
+
+        {/* Claim Dialog */}
+        {showClaimDialog && (
+          <div className="claim-dialog-overlay" onClick={handleClaimCancel}>
+            <div className="claim-dialog" onClick={(e) => e.stopPropagation()}>
+              <h2>Claim This Item</h2>
+              <p className="dialog-subtitle">Please provide proof that this item belongs to you</p>
+
+              <div className="claim-form">
+                <div className="form-group">
+                  <label htmlFor="claim-photo">Upload Photo Proof *</label>
+                  <input
+                    type="file"
+                    id="claim-photo"
+                    accept="image/*"
+                    onChange={handlePhotoChange}
+                    className="file-input"
+                  />
+                  {claimPhotoPreview && (
+                    <div className="photo-preview">
+                      <img src={claimPhotoPreview} alt="Preview" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="claim-description">Description *</label>
+                  <textarea
+                    id="claim-description"
+                    value={claimDescription}
+                    onChange={(e) => setClaimDescription(e.target.value)}
+                    placeholder="Explain why this item is yours and provide any distinguishing features..."
+                    rows="5"
+                    className="claim-textarea"
+                  />
+                </div>
+
+                <div className="dialog-actions">
+                  <button className="btn-cancel" onClick={handleClaimCancel}>
+                    Cancel
+                  </button>
+                  <button className="btn-submit" onClick={handleClaimSubmit}>
+                    Submit Claim
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Footer */}
         <footer className="mini-footer">
