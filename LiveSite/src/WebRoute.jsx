@@ -12,6 +12,7 @@ import Notifications from './Pages/Notifications.jsx'
 import Messages from './Pages/Messages.jsx'
 import ContactFromListing from './Pages/ContactFromListing.jsx'
 import MyArchive from './Pages/MyArchive.jsx'
+import Admin from './Pages/Admin.jsx'
 
 
 export default function Web() {
@@ -26,12 +27,12 @@ export default function Web() {
       <Route path="/listings" element={<Listings />} />
       <Route path="/listings/:id" element={<ListingDetail />} />
 
-     
+
 
       <Route path="/settings" element={<Settings />} />
 
       <Route path="/profile" element={<Profile />} />
-      <Route path="/mylistings" element={<MyArchive />} /> 
+      <Route path="/mylistings" element={<MyArchive />} />
 
       <Route path="/create" element={<CreateListing />} />
 
@@ -41,6 +42,9 @@ export default function Web() {
 
 
       <Route path="/contact/:listingId" element={<ContactFromListing />} />
+
+      {/* Admin Dashboard - Only accessible to admin users */}
+      <Route path="/admin" element={<Admin />} />
 
       {/*You can later replace it with a styled 404 page component.*/}
       <Route path="*" element={<h2 style={{padding:16}}>Page not found</h2>} />
