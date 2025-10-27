@@ -76,6 +76,11 @@ export default function Listings() {
     setOtherItemsPage(1);
   };
 
+  const handleClaimClick = () => {
+    // TODO: Implement claim submission to backend
+    alert(`Claim submitted for: ${selectedItem.title}\nReference ID: #${selectedItem.id.toString().padStart(4, '0')}\n\nYou will be contacted shortly to verify your claim.`);
+  };
+
   if (selectedItem) {
     return (
       <main className="listings-wrap detailed-view">
@@ -172,15 +177,12 @@ export default function Listings() {
                 <p><strong>Description:</strong> {selectedItem.description}</p>
               </div>
               
-              {/* Contact section */}
-              <div className="contact-section">
-                <h3>Contact</h3>
-                <p>If this is your item or you have information, please contact:</p>
-                <div className="contact-info">
-                  <p>Email: contact@findersnotkeepers.com</p>
-                  <p>Phone: (012) 345-6789</p>
-                  <p>Reference ID: #{selectedItem.id.toString().padStart(4, '0')}</p>
-                </div>
+              {/* Claim button section */}
+              <div className="claim-section">
+                <button className="claim-button" onClick={handleClaimClick}>
+                  Claim This Item
+                </button>
+                <p className="claim-note">Reference ID: #{selectedItem.id.toString().padStart(4, '0')}</p>
               </div>
             </div>
           </section>
