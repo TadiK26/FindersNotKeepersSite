@@ -26,7 +26,7 @@ def create_app():
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
 
     # Initialize extensions
-        CORS(app, origins=[
+    CORS(app, origins=[
     "https://findersnotkeepers.onrender.com",  # Production
     "http://localhost:5173"  # Development
     ])
