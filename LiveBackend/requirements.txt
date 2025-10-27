@@ -7,9 +7,8 @@ bcrypt
 openai
 mysql.connector
 werkzeug
-MIMEMultipart
-MIMEText
-load_dotenv
+email
+smtplib
 base64
 hashlib
 os
@@ -18,3 +17,4 @@ datetime
 typing
 hashlib
 cryptography
+json
