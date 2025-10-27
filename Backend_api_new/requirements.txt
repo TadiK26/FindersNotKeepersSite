@@ -1,0 +1,9 @@
+Flask
+Flask-JWT-Extended
+Flask-SQLAlchemy
+Werkzeug
+itsdangerous
+pymysql
+flask_mysqldb
+flask_cors
+flask_session
