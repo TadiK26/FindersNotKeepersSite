@@ -18,7 +18,7 @@ class Session:
         load_dotenv()
 
         return psycopg2.connect(
-            host=os.getenv("DB_HOST"),
+            host=
             user=os.getenv("DB_USER"),
             password=os.getenv("DB_PASSWORD"),
             dbname="findersnotkeepers"
