@@ -29,7 +29,53 @@ export default function Signup() {
     if (window.google && window.google.accounts?.id) {
       window.google.accounts.id.initialize({
         client_id: "257643953276-8su4c8tr824kok0k40jd2rbgp5ek6roa.apps.googleusercontent.com",
-        callback: () => navigate('/listings'),
+        callback: async (response) => {
+          try {
+            console.log('Google signup callback triggered')
+            setError('')
+
+            // Send credential to backend
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+            console.log('Sending request to:', `${apiUrl}/api/auth/google`)
+            const res = await fetch(`${apiUrl}/api/auth/google`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ credential: response.credential })
+            })
+
+            const data = await res.json()
+            console.log('Backend response:', data)
+
+            if (!res.ok) {
+              console.error('Backend returned error:', data.error)
+              setError(data.error || 'Google signup failed')
+              return
+            }
+
+            // Store token and user data
+            localStorage.setItem('token', data.token)
+            localStorage.setItem('user', JSON.stringify(data.user))
+            console.log('Token and user stored in localStorage')
+
+            // Navigate first, then show alert
+            console.log('Navigating to /listings...')
+            navigate('/listings', { replace: true })
+
+            // Use setTimeout to show alert after navigation
+            setTimeout(() => {
+              if (data.isNewUser) {
+                alert(`Welcome to FindersNotKeepers, ${data.user.name}! Check your email for a welcome message.`)
+              } else {
+                alert(`Welcome back, ${data.user.name}!`)
+              }
+            }, 100)
+          } catch (err) {
+            console.error("Google signup error:", err)
+            setError(`Failed to sign up with Google: ${err.message}. Please check console for details.`)
+          }
+        },
       })
       window.google.accounts.id.renderButton(
         document.getElementById('googleSignupDiv'),

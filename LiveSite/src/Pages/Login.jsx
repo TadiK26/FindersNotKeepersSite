@@ -25,13 +25,46 @@ export default function Login() {
     if (window.google && window.google.accounts?.id) {
       window.google.accounts.id.initialize({
         client_id: "257643953276-8su4c8tr824kok0k40jd2rbgp5ek6roa.apps.googleusercontent.com",
-        callback: (response) => {
+        callback: async (response) => {
           try {
-            const payload = JSON.parse(atob(response.credential.split('.')[1]))
-            alert(`Signed in as: ${payload.email || payload.name}`)
-            navigate('/listings')
+            console.log('Google login callback triggered')
+            setError('')
+
+            // Send credential to backend
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+            console.log('Sending request to:', `${apiUrl}/api/auth/google`)
+            const res = await fetch(`${apiUrl}/api/auth/google`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ credential: response.credential })
+            })
+
+            const data = await res.json()
+            console.log('Backend response:', data)
+
+            if (!res.ok) {
+              console.error('Backend returned error:', data.error)
+              setError(data.error || 'Google login failed')
+              return
+            }
+
+            // Store token and user data
+            localStorage.setItem('token', data.token)
+            localStorage.setItem('user', JSON.stringify(data.user))
+            console.log('Token and user stored in localStorage')
+
+            // Navigate first, then show alert
+            console.log('Navigating to /listings...')
+            navigate('/listings', { replace: true })
+
+            setTimeout(() => {
+              alert(`Welcome back, ${data.user.name}!`)
+            }, 100)
           } catch (err) {
-            console.error("Failed to decode Google token", err)
+            console.error("Google login error:", err)
+            setError(`Failed to sign in with Google: ${err.message}. Please check console for details.`)
           }
         }
       })

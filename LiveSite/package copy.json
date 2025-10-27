@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest"
+    "start": "npx serve -s dist -l $PORT"
   },
   "dependencies": {
     "react": "^19.1.1",
